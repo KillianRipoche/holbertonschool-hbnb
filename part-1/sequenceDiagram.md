@@ -35,6 +35,7 @@ Database-->>BusinessLogic: Authentication Failed or place conflit
 BusinessLogic-->>API: Return conflit or authentication failed Response
 API-->>User: Creation Failed
 
+
 %% Review submission :
 
 User->>API: POST /reviews (Review Data)
@@ -45,6 +46,9 @@ BusinessLogic->>Database: Save Review Data
 Database-->>BusinessLogic: Confirm Save
 BusinessLogic-->>API: Return Review Created Response
 API-->>User: Review Submitted Successfully
+Database-->>BusinessLogic: Validation Failed
+BusinessLogic-->>API: Return Review Failed
+API-->>User: Review Submitted Failed
 
 
 %% Fetching list of place :
@@ -55,4 +59,7 @@ BusinessLogic->>Database: Retrieve Matching Places
 Database-->>BusinessLogic: Return Places Data
 BusinessLogic-->>API: Format and Return Response
 API-->>User: List of Places
+Database-->>BusinessLogic: Return Failed
+BusinessLogic-->>API: Return failed
+API-->>User: No matching place
 ```
