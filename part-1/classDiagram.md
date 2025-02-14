@@ -12,7 +12,7 @@ class User{
 +First name
 -Last name
 -Email
--user.id
+#user.id
 #Password
 ~def create_user()
 #def change_permission()
@@ -43,7 +43,7 @@ class Review{
 +User
 +Rating
 +Comment
--user.id
+#user.id
 ~def create_review()
 ~def modify_review()
 ~def del_review()
