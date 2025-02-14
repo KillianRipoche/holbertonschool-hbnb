@@ -1,6 +1,8 @@
 presentation of hbnb project
 ```mermaid
 classDiagram
+direction TB
+
 class BaseModel{
 -id : str
 +created at : time
@@ -47,12 +49,20 @@ class Review{
 ~def del_review()
 }
 
-BaseModel --> User : Inheritance
-BaseModel --> Place : Inheritance
-BaseModel --> Amenity : Inheritance
-BaseModel --> Review : Inheritance
-Place <-- Amenity : Dependency
-Place <--> Review : Association
-User <--> Review : Association
-User <--> Place : Association
+BaseModel --|> User : Inheritance
+BaseModel --|> Place : Inheritance
+BaseModel --|> Amenity : Inheritance
+BaseModel --|> Review : Inheritance
+
+Place "1" <.. "0..*" Amenity : Dependency
+
+Place "1" <--> "0..*" Review : Association
+User "1" <--> "0..*" Review : Association
+User "1" <--> "0..*" Place : Association
+
+style BaseModel fill:#d3d3d3,stroke:#000,stroke-width:2px;
+style User fill:#ADD8E6,stroke:#000,stroke-width:2px;
+style Place fill:#90EE90,stroke:#000,stroke-width:2px;
+style Amenity fill:#FFA500,stroke:#000,stroke-width:2px;
+style Review fill:#FF6347,stroke:#000,stroke-width:2px;
 ```
