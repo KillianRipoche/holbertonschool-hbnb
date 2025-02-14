@@ -151,5 +151,7 @@ API-->>User: No matching place
 ## Authors:
 
 **Alexis Battistoni** https://github.com/Albat93
+
 **Killian Ripoche** https://github.com/KillianRipoche
+
 **Jean-Alain Renié** https://github.com/JaRenie-spec
