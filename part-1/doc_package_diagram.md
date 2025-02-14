@@ -53,7 +53,7 @@ The Package Diagram illustrates the architectural organization of the HBnB syste
 
 - **Separation of Concerns**: Each package has a well-defined role to ensure modularity.
 - **Scalability**: The system can easily be extended by adding new modules to the business logic or API layers.
-- **Security**: The API package serves as a controlled access point, preventing direct interaction with the database.
+- **Security**: The API package serves as a controlled access point preventing direct interaction with the database.
 
 ---
 
