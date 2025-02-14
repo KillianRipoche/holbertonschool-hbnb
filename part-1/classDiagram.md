@@ -1,3 +1,4 @@
+# holbertonschool-higher_level_programming
 ```mermaid
 classDiagram
 direction TB
@@ -23,8 +24,7 @@ class Place{
 +Title
 +Description
 +Price
-+Latitude
-+Longitude
++Location (Latitude / longitude)
 +Owner = user.id
 ~def create_place()
 ~def modify_place()
@@ -36,6 +36,7 @@ class Amenity{
 ~def create_amenity()
 ~def modify_amenity()
 ~def del_amenity()
+~def list_amenity()
 }
 class Review{
 +Place
@@ -46,6 +47,7 @@ class Review{
 ~def create_review()
 ~def modify_review()
 ~def del_review()
+~def list_by_place()
 }
 
 BaseModel --|> User : Inheritance
