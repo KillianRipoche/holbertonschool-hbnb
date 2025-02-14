@@ -69,6 +69,7 @@ style User fill:#ADD8E6,stroke:#000,stroke-width:2px;
 style Place fill:#90EE90,stroke:#000,stroke-width:2px;
 style Amenity fill:#FFA500,stroke:#000,stroke-width:2px;
 style Review fill:#FF6347,stroke:#000,stroke-width:2px;
+```
 
 ### Description
 The Class Diagram provides a structured representation of the system’s data model, illustrating how different entities interact within the application.
