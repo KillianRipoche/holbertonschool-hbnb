@@ -89,5 +89,11 @@ To ensure a secure platform, HBnB implements:
 ## Conclusion
 By following this guide, developers can efficiently build and scale the HBnB platform, ensuring a robust, secure, and user-friendly experience. For additional documentation or questions, please refer to the project's GitHub repository or contact the development team.
 
+## Authors:
+
+**Alexis Battistoni** https://github.com/Albat93
+**Killian Ripoche** https://github.com/KillianRipoche
+**Jean-Alain Renié** https://github.com/JaRenie-spec
+
 **Happy Coding! 🚀**
 
