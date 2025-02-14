@@ -24,7 +24,7 @@ class Place{
 +Title
 +Description
 +Price
-+Location (Latitude / longitude)
++Location : Latitude / longitude
 +Owner = user.id
 ~def create_place()
 ~def modify_place()
