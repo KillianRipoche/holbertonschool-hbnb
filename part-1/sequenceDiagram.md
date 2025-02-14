@@ -8,13 +8,16 @@ participant Database
 User->>API: POST /register (User Data)
 API->>BusinessLogic: Validate and Process Request
 BusinessLogic->>Database: Check if user exists
-Database-->>BusinessLogic: User not found
+Database-->>BusinessLogic: User not found (Success)
 BusinessLogic->>Database: Save new user
 Database-->>BusinessLogic: Confirm Save
-BusinessLogic-->>API: Return Success Response
-API-->>User: Registration Successful
+BusinessLogic-->>API: Return Success
+API-->>User: Registration Successful (return 201)
+Database-->>BusinessLogic: User found (Failed)
+BusinessLogic-->>API: Return Failed
+API-->>User: Registration Failed (return 4xx)
 
-	User->>API: POST /places (Place Data)
+User->>API: POST /places (Place Data)
 API->>BusinessLogic: Validate and Process Request
 BusinessLogic->>Database: Verify User Authentication
 Database-->>BusinessLogic: Authentication Valid
@@ -32,7 +35,7 @@ Database-->>BusinessLogic: Confirm Save
 BusinessLogic-->>API: Return Review Created Response
 API-->>User: Review Submitted Successfully
 
-User->>API: GET /places?criteria
+User->>API: GET /places criteria
 API->>BusinessLogic: Process Search Criteria
 BusinessLogic->>Database: Retrieve Matching Places
 Database-->>BusinessLogic: Return Places Data
