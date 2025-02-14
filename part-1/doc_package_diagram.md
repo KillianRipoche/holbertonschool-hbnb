@@ -1,4 +1,4 @@
-# 2. Package Diagram Overview
+# 1. Package Diagram Overview
 
 # Diagram
 
@@ -20,7 +20,7 @@ The Package Diagram illustrates the architectural organization of the HBnB syste
 
 ---
 
-# 3. Detailed Explanation of Packages
+# 2. Detailed Explanation of Packages
 
 ## Client Package
 - **Description**:
@@ -49,7 +49,7 @@ The Package Diagram illustrates the architectural organization of the HBnB syste
 
 ---
 
-# 4. Structure and Design Integrity
+# 3. Structure and Design Integrity
 
 - **Separation of Concerns**: Each package has a well-defined role to ensure modularity.
 - **Scalability**: The system can easily be extended by adding new modules to the business logic or API layers.
@@ -57,5 +57,5 @@ The Package Diagram illustrates the architectural organization of the HBnB syste
 
 ---
 
-# 5. Conclusion
+# 4. Conclusion
 This document provides a structured overview of HBnB's Package Diagram, explaining the different modules and their interactions. Understanding this high-level architecture ensures efficient development, maintenance, and scalability of the system.

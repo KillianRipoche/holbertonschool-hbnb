@@ -87,7 +87,7 @@ The Class Diagram provides a structured representation of the system’s data mo
 
 ---
 
-## 3. Detailed Explanation of Classes
+## 2. Detailed Explanation of Classes
 
 ### BaseModel
 - **Description**:
@@ -135,7 +135,7 @@ The Class Diagram provides a structured representation of the system’s data mo
 
 ---
 
-## 4. Class Diagram Structure and Integrity
+## 3. Class Diagram Structure and Integrity
 
 - The inheritance structure ensures all classes share common properties via BaseModel.
 - One-to-Many and Many-to-Many relationships ensure logical data storage and retrieval.
@@ -143,5 +143,5 @@ The Class Diagram provides a structured representation of the system’s data mo
 
 ---
 
-## 5. Conclusion
+## 4. Conclusion
 This document provides a detailed analysis of the HBnB Class Diagram, explaining the relationships and functionalities of each entity. Understanding these components ensures a clear and scalable implementation of the system’s business logic.
