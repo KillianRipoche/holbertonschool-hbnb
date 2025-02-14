@@ -92,7 +92,9 @@ By following this guide, developers can efficiently build and scale the HBnB pla
 ## Authors:
 
 **Alexis Battistoni** https://github.com/Albat93
+
 **Killian Ripoche** https://github.com/KillianRipoche
+
 **Jean-Alain Renié** https://github.com/JaRenie-spec
 
 **Happy Coding! 🚀**
