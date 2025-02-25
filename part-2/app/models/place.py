@@ -1,6 +1,4 @@
 from BaseModel import BaseModel
-from amenity import Amenity
-from review import Review
 class Place(BaseModel):
     def __init__(self, title, description, price, latitude, longitude, owner):
         super().__init__()
@@ -32,12 +30,16 @@ class Place(BaseModel):
         return longitude
 
     def add_review(self, review):
+        from .review import Review
+
         if not isinstance(review, Review):
             raise TypeError ("must be instance of review")
         self.reviews.append(review)
         review.place = self
 
     def add_amenity(self, amenity):
+        from .amenity import Amenity
+
         if not isinstance(amenity, Amenity):
             raise TypeError ("must be instance of amenity")
         self.amenities.append(amenity)
