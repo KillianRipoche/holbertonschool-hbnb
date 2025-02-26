@@ -61,7 +61,136 @@ class TestHBnBFacade(unittest.TestCase):
         amenities = self.facade.get_all_amenities()
         self.assertTrue(len(amenities) >= 2)
 
+    def test_create_user_invalid_first_name(self):
+        """
+        Si ta classe User vérifie que first_name ne doit pas être vide ou trop long,
+        on peut tester un first_name vide.
+        """
+        invalid_data = {
+            "first_name": "",
+            "last_name": "Test",
+            "email": "invalid@example.com"
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_user(invalid_data)
+        self.assertIn("first_name invalide", str(context.exception))
+
+    def test_create_user_invalid_last_name(self):
+        """
+        Si ta classe User vérifie last_name,
+        on teste un last_name vide ou trop long.
+        """
+        invalid_data = {
+            "first_name": "Bob",
+            "last_name": "",
+            "email": "invalid@example.com"
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_user(invalid_data)
+        self.assertIn("last_name invalide", str(context.exception))
+
+    def test_create_user_invalid_email_format(self):
+        """
+        Si ta classe User vérifie le format d'email,
+        on teste un email sans '@' ni '.'
+        """
+        invalid_data = {
+            "first_name": "Charlie",
+            "last_name": "Brown",
+            "email": "not_an_email"
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_user(invalid_data)
+        self.assertIn("Format d'email invalide", str(context.exception))
+
     # ---------- Tests pour les PLACES ----------
+    def test_create_place_invalid_latitude_high(self):
+        """
+        Test de création d'un place avec latitude > 90
+        On attend une ValueError "Latitude must be between -90 and 90."
+        """
+        place_data = {
+            "title": "Out of Bounds Latitude",
+            "description": "Latitude > 90",
+            "price": 50.0,
+            "latitude": 91.0,  # invalide
+            "longitude": 2.3522,
+            "owner_id": self.user["id"],
+            "amenities": []
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_place(place_data)
+        self.assertIn("Latitude must be between -90 and 90", str(context.exception))
+
+    def test_create_place_invalid_latitude_low(self):
+        """
+        Test de création d'un place avec latitude < -90
+        """
+        place_data = {
+            "title": "Out of Bounds Latitude",
+            "description": "Latitude < -90",
+            "price": 50.0,
+            "latitude": -91.0,
+            "longitude": 2.3522,
+            "owner_id": self.user["id"],
+            "amenities": []
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_place(place_data)
+        self.assertIn("Latitude must be between -90 and 90", str(context.exception))
+
+    def test_create_place_invalid_longitude_high(self):
+        """
+        Test de création d'un place avec longitude > 180
+        """
+        place_data = {
+            "title": "Out of Bounds Longitude",
+            "description": "Longitude > 180",
+            "price": 50.0,
+            "latitude": 48.8566,
+            "longitude": 181.0,  # invalide
+            "owner_id": self.user["id"],
+            "amenities": []
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_place(place_data)
+        self.assertIn("Longitude must be between -180 and 180", str(context.exception))
+
+    def test_create_place_invalid_longitude_low(self):
+        """
+        Test de création d'un place avec longitude < -180
+        """
+        place_data = {
+            "title": "Out of Bounds Longitude",
+            "description": "Longitude < -180",
+            "price": 50.0,
+            "latitude": 48.8566,
+            "longitude": -181.0,  # invalide
+            "owner_id": self.user["id"],
+            "amenities": []
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_place(place_data)
+        self.assertIn("Longitude must be between -180 and 180", str(context.exception))
+
+    def test_create_place_no_owner(self):
+        """
+        Test de création d'un place sans owner existant
+        On attend une ValueError "Owner not found."
+        """
+        place_data = {
+            "title": "No Owner",
+            "description": "Testing place with non-existent owner",
+            "price": 50.0,
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "owner_id": "non-existent-id",  # invalide
+            "amenities": []
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_place(place_data)
+        self.assertIn("Owner not found", str(context.exception))
+
     def test_create_place_valid(self):
         place_data = {
             "title": "Central Apartment",
@@ -219,6 +348,90 @@ class TestHBnBFacade(unittest.TestCase):
         self.assertEqual(deleted["id"], review["id"])
         # Après suppression, get_review doit renvoyer None
         self.assertIsNone(self.facade.get_review(review["id"]))
+
+    def test_create_review_missing_text(self):
+        """
+        Test de création de review sans champ 'text'
+        On attend "Missing required field: text"
+        """
+        place_data = self.facade.create_place({
+            "title": "Missing text place",
+            "description": "desc",
+            "price": 100.0,
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "owner_id": self.user["id"],
+            "amenities": []
+        })
+        review_data = {
+            # "text": "No text provided", # manquant
+            "rating": 4,
+            "user_id": self.user["id"],
+            "place_id": place_data["id"]
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_review(review_data)
+        self.assertIn("Missing required field: text", str(context.exception))
+
+    def test_create_review_missing_rating(self):
+        """
+        Test de création de review sans champ 'rating'
+        """
+        place_data = self.facade.create_place({
+            "title": "Missing rating place",
+            "description": "desc",
+            "price": 100.0,
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "owner_id": self.user["id"],
+            "amenities": []
+        })
+        review_data = {
+            "text": "No rating provided",
+            # "rating": 4, # manquant
+            "user_id": self.user["id"],
+            "place_id": place_data["id"]
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_review(review_data)
+        self.assertIn("Missing required field: rating", str(context.exception))
+
+    def test_create_review_no_user(self):
+        """
+        Test de création de review avec user_id inexistant
+        """
+        place_data = self.facade.create_place({
+            "title": "No user place",
+            "description": "desc",
+            "price": 100.0,
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "owner_id": self.user["id"],
+            "amenities": []
+        })
+        review_data = {
+            "text": "User not found test",
+            "rating": 4,
+            "user_id": "non-existent-id",  # invalide
+            "place_id": place_data["id"]
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_review(review_data)
+        self.assertIn("User not found", str(context.exception))
+
+    def test_create_review_no_place(self):
+        """
+        Test de création de review avec place_id inexistant
+        """
+        review_data = {
+            "text": "Place not found test",
+            "rating": 4,
+            "user_id": self.user["id"],
+            "place_id": "non-existent-id"
+        }
+        with self.assertRaises(ValueError) as context:
+            self.facade.create_review(review_data)
+        self.assertIn("Place not found", str(context.exception))
 
     def test_get_reviews_by_place(self):
         place_data1 = {
