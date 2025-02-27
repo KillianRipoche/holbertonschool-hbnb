@@ -1,11 +1,9 @@
 from flask_restx import Namespace, Resource, fields
-from app.services.facade import HBnBFacade
 from flask import request
+from app.services import facade
 
 api = Namespace('reviews', description='Review operations')
-facade = HBnBFacade()
 
-# Define the review model for input validation and documentation
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
@@ -22,16 +20,31 @@ class ReviewList(Resource):
         """Register a new review"""
         try:
             data = request.json
-            review = facade.create_review(data)
-            return review, 201
+            review_obj = facade.create_review(data)  # objet Review
+            return {
+                "id": review_obj.id,
+                "text": review_obj.text,
+                "rating": review_obj.rating,
+                "user_id": review_obj.user.id,
+                "place_id": review_obj.place.id
+            }, 201
         except Exception as e:
             return {'message': str(e)}, 400
 
     @api.response(200, 'List of reviews retrieved successfully')
     def get(self):
         """Retrieve a list of all reviews"""
-        reviews = facade.get_all_reviews()
-        return reviews, 200
+        reviews = facade.get_all_reviews()  # liste d'objets
+        return [
+            {
+                "id": r.id,
+                "text": r.text,
+                "rating": r.rating,
+                "user_id": r.user.id,
+                "place_id": r.place.id
+            }
+            for r in reviews
+        ], 200
 
 @api.route('/<review_id>')
 class ReviewResource(Resource):
@@ -39,9 +52,15 @@ class ReviewResource(Resource):
     @api.response(404, 'Review not found')
     def get(self, review_id):
         """Get review details by ID"""
-        review = facade.get_review(review_id)
-        if review:
-            return review, 200
+        review_obj = facade.get_review(review_id)  # objet ou None
+        if review_obj:
+            return {
+                "id": review_obj.id,
+                "text": review_obj.text,
+                "rating": review_obj.rating,
+                "user_id": review_obj.user.id,
+                "place_id": review_obj.place.id
+            }, 200
         return {'message': 'Review not found'}, 404
 
     @api.expect(review_model)
@@ -52,9 +71,15 @@ class ReviewResource(Resource):
         """Update a review's information"""
         try:
             data = request.json
-            review = facade.update_review(review_id, data)
-            if review:
-                return review, 200
+            review_obj = facade.update_review(review_id, data)  # objet ou None
+            if review_obj:
+                return {
+                    "id": review_obj.id,
+                    "text": review_obj.text,
+                    "rating": review_obj.rating,
+                    "user_id": review_obj.user.id,
+                    "place_id": review_obj.place.id
+                }, 200
             else:
                 return {'message': 'Review not found'}, 404
         except Exception as e:
@@ -64,8 +89,8 @@ class ReviewResource(Resource):
     @api.response(404, 'Review not found')
     def delete(self, review_id):
         """Delete a review"""
-        review = facade.delete_review(review_id)
-        if review:
+        review_obj = facade.delete_review(review_id)
+        if review_obj:
             return {'message': 'Review deleted successfully'}, 200
         return {'message': 'Review not found'}, 404
 
@@ -75,5 +100,16 @@ class PlaceReviewList(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get all reviews for a specific place"""
+        # Liste d'objets Review
         reviews = facade.get_reviews_by_place(place_id)
-        return reviews, 200
+        # Convertir en dict
+        return [
+            {
+                "id": r.id,
+                "text": r.text,
+                "rating": r.rating,
+                "user_id": r.user.id,
+                "place_id": r.place.id
+            }
+            for r in reviews
+        ], 200
