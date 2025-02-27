@@ -41,7 +41,7 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     def get(self, user_id):
         """Get user details by ID"""
-        user = facade.HBnBFacade().get_user(user_id)
+        user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
         return {
