@@ -146,6 +146,22 @@ class HBnBFacade:
         if "longitude" in data and not (-180 <= data["longitude"] <= 180):
             raise ValueError("Longitude must be between -180 and 180.")
 
+        if "owner_id" in data:
+            new_owner = self.user_repo.get(data["owner_id"])
+            if not new_owner:
+                raise ValueError("Owner not found.")
+        place.owner = new_owner
+        data.pop("owner_id")
+
+        if "amenities" in data:
+            new_amenities = []
+            for amenity_id in data["amenities"]:
+                amenity_obj = self.amenity_repo.get(amenity_id)
+                if amenity_obj:
+                    new_amenities.append(amenity_obj)
+            place.amenities = new_amenities
+            data.pop("amenities")
+
         place.update(data)
         self.place_repo.add(place)
         return place
