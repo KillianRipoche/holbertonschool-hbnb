@@ -55,22 +55,29 @@ class HBnBFacade:
         }
 
     def create_user(self, user_data):
-        existing = self.user_repo.get_by_attribute("email", user_data["email"])
+        existing = self.get_user_by_email(user_data["email"])
         if existing:
             raise ValueError("Cet email est déjà utilisé.")
+
         user = User(
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],
             email=user_data["email"]
         )
         self.user_repo.add(user)
-        return self._user_to_dict(user)
+        return user
 
     def get_user(self, user_id):
-        return self._user_to_dict(self.user_repo.get(user_id))
+        return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
-        return self._user_to_dict(self.user_repo.get_by_attribute("email", email))
+        return self.user_repo.get_by_attribute("email", email)
+
+    def update_user(self, user_id, data):
+        return self.user_repo.update(user_id, data)
+
+    def delete_user(self, user_id):
+        return self.user_repo.delete(user_id)
 
     def create_amenity(self, amenity_data):
         name = amenity_data.get("name", "")
