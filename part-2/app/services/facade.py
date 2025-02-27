@@ -41,7 +41,7 @@ class HBnBFacade:
             "latitude": place_obj.latitude,
             "longitude": place_obj.longitude,
             "owner_id": place_obj.owner.id,
-            "amenities": [a.id for a in place_obj.amenities] if hasattr(place_obj, "amenities") else []
+            "amenities": [a.id for a in place_obj.amenities.id] if hasattr(place_obj, "amenities") else []
         }
 
     def _review_to_dict(self, review_obj):

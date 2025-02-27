@@ -45,7 +45,7 @@ class PlaceList(Resource):
                 "latitude": place_obj.latitude,
                 "longitude": place_obj.longitude,
                 "owner_id": place_obj.owner.id,
-                "amenities": [a.id for a in place_obj.amenities]
+                "amenities": [a.name for a in place_obj.amenities]
             }, 201
         except ValueError as e:
             return {"message": str(e)}, 400
