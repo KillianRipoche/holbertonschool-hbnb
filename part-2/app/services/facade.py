@@ -123,6 +123,16 @@ class HBnBFacade:
             longitude=place_data["longitude"],
             owner=owner
         )
+        place_obj.amenities = [] if not hasattr(place_obj, "amenities") else place_obj.amenities
+
+        if "amenities" in place_data:
+            amenities = []
+            for amenity_id in place_data["amenities"]:
+                amenity_obj = self.amenity_repo.get(amenity_id)
+                if amenity_obj:
+                    amenities.append(amenity_obj)
+            place_obj.amenities = amenities
+
         self.place_repo.add(place_obj)
         return place_obj
 
