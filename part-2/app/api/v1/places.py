@@ -108,7 +108,7 @@ class PlaceResource(Resource):
         """ Update a place's information """
         place_data = api.payload
         try:
-            updated_place = facade.update_place(place_id, place_data)  # objet ou None
+            updated_place = facade.update_place(place_id, place_data)
             if not updated_place:
                 return {"message": "Place not found"}, 404
             return {
