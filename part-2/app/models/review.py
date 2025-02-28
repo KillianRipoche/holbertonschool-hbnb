@@ -1,5 +1,6 @@
 from .BaseModel import BaseModel
 
+
 class Review(BaseModel):
     """
     Review class.
@@ -21,7 +22,8 @@ class Review(BaseModel):
         super().__init__()
 
         if not text:
-            raise ValueError("Invalid 'text': review content must not be empty.")
+            raise ValueError(
+                "Invalid 'text': review content must not be empty.")
         if not (1 <= rating <= 5):
             raise ValueError("Invalid 'rating': must be between 1 and 5.")
 

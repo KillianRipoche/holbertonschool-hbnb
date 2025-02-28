@@ -1,6 +1,7 @@
 import re
 from .BaseModel import BaseModel
 
+
 class User(BaseModel):
     """
     User class.
@@ -24,11 +25,11 @@ class User(BaseModel):
 
         # Validate first_name
         if not first_name or len(first_name) > 50:
-            raise ValueError("first_name invalide (non vide, max 50).")
+            raise ValueError("first_name invalide (not empty, max 50).")
 
         # Validate last_name
         if not last_name or len(last_name) > 50:
-            raise ValueError("last_name invalide (non vide, max 50).")
+            raise ValueError("last_name invalide (not empty, max 50).")
 
         # Validate email (format + uniqueness)
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):

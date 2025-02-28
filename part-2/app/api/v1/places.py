@@ -3,7 +3,7 @@ from app.services import facade
 
 api = Namespace('places', description='Place operations')
 
-# Models pour la doc
+
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -26,6 +26,7 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+
 @api.route('/')
 class PlaceList(Resource):
     @api.expect(place_model)
@@ -35,8 +36,8 @@ class PlaceList(Resource):
         """ Register a new place """
         place_data = api.payload
         try:
-            place_obj = facade.create_place(place_data)  # objet Place
-            # Convertir l'objet en dict pour la réponse
+            place_obj = facade.create_place(place_data)
+
             return {
                 "id": place_obj.id,
                 "title": place_obj.title,
@@ -53,8 +54,8 @@ class PlaceList(Resource):
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """ Retrieve all places """
-        places = facade.get_all_places()  # liste d'objets Place
-        # Convertir en liste de dict
+        places = facade.get_all_places()
+
         return [
             {
                 "id": p.id,
@@ -68,6 +69,7 @@ class PlaceList(Resource):
             for p in places
         ], 200
 
+
 @api.route('/<place_id>')
 class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully')
@@ -75,7 +77,7 @@ class PlaceResource(Resource):
     def get(self, place_id):
         """ Retrieve a place's details by ID, including owner and amenities """
         try:
-            place_obj = facade.get_place(place_id)  # objet ou ValueError
+            place_obj = facade.get_place(place_id)
             return {
                 "id": place_obj.id,
                 "title": place_obj.title,

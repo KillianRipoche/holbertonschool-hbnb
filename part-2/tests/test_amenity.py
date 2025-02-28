@@ -1,5 +1,7 @@
 import unittest
-from app.models.amenity import Amenity  # Assurez-vous que Amenity est correctement importé
+
+from app.models.amenity import Amenity
+
 
 class TestAmenity(unittest.TestCase):
 
@@ -17,6 +19,7 @@ class TestAmenity(unittest.TestCase):
         """Teste si un nom trop long déclenche une erreur."""
         with self.assertRaises(ValueError):
             Amenity("A" * 51)
+
 
 if __name__ == '__main__':
     unittest.main()

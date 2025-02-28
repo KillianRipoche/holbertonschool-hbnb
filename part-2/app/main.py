@@ -3,62 +3,67 @@ from models.place import Place
 from models.review import Review
 from models.amenity import Amenity
 
-def main():
-    # Création d'un utilisateur
-    user1 = User(first_name="Alice", last_name="Smith", email="alice@example.com")
-    user2 = User(first_name="Bob", last_name="Johnson", email="bob@example.com")
 
-    # Création de lieux
+def main():
+    # Creating a user
+    user1 = User(first_name="Alice", last_name="Smith",
+                 email="alice@example.com")
+    user2 = User(first_name="Bob", last_name="Johnson",
+                 email="bob@example.com")
+
+    # Creation of places
     place1 = Place(
-        title="Appartement Cozy",
-        description="Superbe appartement en centre-ville",
+        title="Cozy Apartment",
+        description="Superb apartment in the city center",
         price=100.0,
         latitude=48.8566,
         longitude=2.3522,
         owner=user1
     )
     place2 = Place(
-        title="Villa Luxueuse",
-        description="Villa avec piscine",
+        title="Luxurious Villa",
+        description="Villa with swimming pool",
         price=300.0,
         latitude=43.2965,
         longitude=5.3698,
         owner=user2
     )
 
-    # L'utilisateur 1 possède place1
+    # User 1 owns place1
     user1.add_place(place1)
-    # L'utilisateur 2 possède place2
+    # User 2 owns place2
     user2.add_place(place2)
 
-    # Création d'équipements
+    # Creation of amenities
     wifi = Amenity(name="Wi-Fi")
     parking = Amenity(name="Parking")
 
-    # Ajout des équipements
+    # Add amenities
     place1.add_amenity(wifi)
     place1.add_amenity(parking)
     place2.add_amenity(wifi)
 
-    # Création d'un avis (Review)
-    review1 = Review(text="Super séjour !", rating=5, place=place1, user=user2)
-    review2 = Review(text="Pas mal du tout", rating=4, place=place2, user=user1)
+    # Creation of a review
+    review1 = Review(text="Great stay !", rating=5, place=place1, user=user2)
+    review2 = Review(text="Not bad at all", rating=4, place=place2, user=user1)
 
-    # Ajout de l'avis à la fois au lieu et à l'utilisateur
+    # Added notice to both location and user
     place1.add_review(review1)
     user2.add_review(review1)
 
     place2.add_review(review2)
     user1.add_review(review2)
 
-    # Affichage des résultats
-    print(f"Le lieu '{place1.title}' a {len(place1.reviews)} avis.")
-    print(f"L'utilisateur {user2.first_name} a écrit {len(user2.reviews)} avis.")
-    print(f"L'utilisateur {user1.first_name} possède {len(user1.places)} lieux.")
-    print(f"Le lieu '{place1.title}' a {len(place1.amenities)} équipements.")
+    # Displaying results
+    print(f"The place '{place1.title}' has {len(place1.reviews)} notice.")
+    print(
+        f"the user {user2.first_name} has écrit {len(user2.reviews)} notice.")
+    print(f"the user {user1.first_name} possède {len(user1.places)} place.")
+    print(f"Le lieu '{place1.title}' has {len(place1.amenities)} amenities.")
 
-    print(f"Le lieu '{place2.title}' a {len(place2.reviews)} avis.")
-    print(f"L'utilisateur {user1.first_name} a écrit {len(user1.reviews)} avis.")
+    print(f"The place '{place2.title}' has {len(place2.reviews)} notice.")
+    print(f"the user {user1.first_name} wrote {len(user1.reviews)} notice.")
+
 
 if __name__ == "__main__":
     main()
