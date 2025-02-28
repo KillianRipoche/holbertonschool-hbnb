@@ -2,14 +2,15 @@ import unittest
 import json
 import uuid
 from app import create_app
-from app.models.user import User  # Pour vider existing_emails si nécessaire
+from app.models.user import User
+
 
 class TestUsersAPI(unittest.TestCase):
     def setUp(self):
         """
-        Avant chaque test :
-         - On vide l'ensemble des emails (si la classe User gère l'unicité via un set).
-         - On initialise l'application en mode test.
+        Before each test:
+        - Remove all emails (if the User class manages uniqueness via a set).
+        - Initialize the application in test mode.
         """
         User.existing_emails.clear()
 
@@ -18,7 +19,7 @@ class TestUsersAPI(unittest.TestCase):
 
     def test_create_user_valid(self):
         """
-        Test de création d'un utilisateur valide (tous les champs requis).
+        Test for creating a valid user (all required fields).
         """
         random_email = f"user_{uuid.uuid4()}@example.com"
         payload = {
@@ -36,7 +37,7 @@ class TestUsersAPI(unittest.TestCase):
 
     def test_create_user_missing_required_field(self):
         """
-        Test : omettre un champ requis (par exemple 'email') => 400 Bad Request.
+        Test: omit a required field (e.g., 'email') => 400 Bad Request.
         """
         payload = {
             "first_name": "Charlie",
@@ -44,16 +45,16 @@ class TestUsersAPI(unittest.TestCase):
             # pas de "email"
         }
         resp = self.client.post('/api/v1/users/', json=payload)
-        # Flask-RESTx devrait renvoyer 400 pour champ requis manquant
+        # Flask-RESTx should return 400 for a missing required field.
         self.assertEqual(resp.status_code, 400, msg=resp.data)
 
     def test_create_user_duplicate_email(self):
         """
-        Test de création d'un utilisateur avec un email déjà utilisé => 400
-        et le message 'Email already registered'.
+        Test for creating a user with an already used email => 400
+        and the message 'Email already registered'.
         """
         email = f"duplicate_{uuid.uuid4()}@example.com"
-        # Créer une première fois
+        # Create for 1st time
         payload1 = {
             "first_name": "Alice",
             "last_name": "Doe",
@@ -62,7 +63,7 @@ class TestUsersAPI(unittest.TestCase):
         resp1 = self.client.post('/api/v1/users/', json=payload1)
         self.assertEqual(resp1.status_code, 201, msg=resp1.data)
 
-        # Tenter de recréer avec le même email
+        # Try to create with same email
         payload2 = {
             "first_name": "Alice2",
             "last_name": "Doe2",
@@ -76,7 +77,7 @@ class TestUsersAPI(unittest.TestCase):
 
     def test_get_user_valid(self):
         """
-        Créer un user, puis le récupérer par son ID => 200 OK.
+        Create a user, then GET user with id => 200 OK.
         """
         random_email = f"user_{uuid.uuid4()}@example.com"
         create_payload = {
@@ -89,7 +90,7 @@ class TestUsersAPI(unittest.TestCase):
         user_data = json.loads(create_resp.data)
         user_id = user_data["id"]
 
-        # Récupérer l'utilisateur
+        # Retrieve user
         get_resp = self.client.get(f'/api/v1/users/{user_id}')
         self.assertEqual(get_resp.status_code, 200, msg=get_resp.data)
         fetched_data = json.loads(get_resp.data)
@@ -98,12 +99,13 @@ class TestUsersAPI(unittest.TestCase):
 
     def test_get_user_not_found(self):
         """
-        Tenter de récupérer un user avec un ID inexistant => 404.
+        Trying to get user with non existant ID => 404.
         """
         get_resp = self.client.get('/api/v1/users/nonexistent-id')
         self.assertEqual(get_resp.status_code, 404, msg=get_resp.data)
         data = json.loads(get_resp.data)
         self.assertIn("User not found", json.dumps(data))
+
 
 if __name__ == "__main__":
     unittest.main()
