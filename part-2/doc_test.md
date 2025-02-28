@@ -74,6 +74,16 @@
 
 ![delete review](https://imgur.com/5AR2Cm8.png)
 
+## Error cases
+
+**User not found**
+
+![user_not_found](https://imgur.com/ZJDJ4AI.png)
+
+**Error place pricing**
+
+![price incorrect](https://imgur.com/6wzOEu3.png)
+
 ### Request
 
 ![request](https://imgur.com/zGvCmVH.png)
