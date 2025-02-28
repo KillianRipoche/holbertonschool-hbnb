@@ -33,9 +33,9 @@ class User(BaseModel):
 
         # Validate email (format + uniqueness)
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            raise ValueError("Format d'email invalide.")
+            raise ValueError("Invalid email format.")
         if email in User.existing_emails:
-            raise ValueError("Cet email est déjà utilisé.")
+            raise ValueError("This email is already in use.")
         User.existing_emails.add(email)
 
         self.first_name = first_name
