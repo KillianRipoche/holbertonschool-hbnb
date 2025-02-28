@@ -2,21 +2,19 @@ import unittest
 import json
 import uuid
 from app import create_app
-from app.models.user import User  # Pour vider existing_emails
+from app.models.user import User
 
 
 class TestPlacesAPI(unittest.TestCase):
     def setUp(self):
-        # Vider les emails existants pour éviter "Email already registered"
+
         User.existing_emails.clear()
 
         self.app = create_app()
         self.client = self.app.test_client()
 
-        # Créer un email unique pour l'utilisateur
         random_email = f"alice_{uuid.uuid4()}@example.com"
 
-        # 1) Créer un utilisateur via /api/v1/users/
         user_payload = {
             "first_name": "Alice",
             "last_name": "Doe",
@@ -27,7 +25,6 @@ class TestPlacesAPI(unittest.TestCase):
         user_data = json.loads(user_resp.data)
         self.user_id = user_data["id"]
 
-        # 2) Créer une amenity via /api/v1/amenities/
         amenity_payload = {"name": "WiFi"}
         amenity_resp = self.client.post(
             '/api/v1/amenities/', json=amenity_payload)
@@ -50,7 +47,6 @@ class TestPlacesAPI(unittest.TestCase):
         data = json.loads(resp.data)
         self.assertIn("id", data)
         self.assertEqual(data["title"], "Central Apartment")
-        # le POST renvoie les noms
         self.assertEqual(data["amenities"], ["WiFi"])
 
     def test_get_all_places(self):
@@ -94,7 +90,7 @@ class TestPlacesAPI(unittest.TestCase):
         self.assertEqual(place_info["title"], "Test Place")
 
     def test_get_place_not_found(self):
-        # Test avec un ID inexistant
+
         get_resp = self.client.get('/api/v1/places/nonexistent-id')
         self.assertEqual(get_resp.status_code, 404, msg=get_resp.data)
         data = json.loads(get_resp.data)
@@ -166,7 +162,7 @@ class TestPlacesAPI(unittest.TestCase):
         self.assertIn("non-negative", data["message"])
 
     def test_update_place_not_found(self):
-        # Tentative de mise à jour sur un ID inexistant
+
         update_payload = {
             "title": "New Title",
             "price": 120.0,
@@ -178,7 +174,7 @@ class TestPlacesAPI(unittest.TestCase):
 
     def test_update_place_invalid_owner(self):
         """
-        Test de mise à jour avec un owner_id invalide (user inexistant).
+        Test update with invalide owner_id (inexistant user).
         """
         payload = {
             "title": "Place with Valid Owner",
