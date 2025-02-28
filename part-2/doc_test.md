@@ -68,7 +68,7 @@
 
 ![put amenity](https://imgur.com/AfHBkWb.png)
 
-## Delete
+### Delete
 
 **Delete review**
 
