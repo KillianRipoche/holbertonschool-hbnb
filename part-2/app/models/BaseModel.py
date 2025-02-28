@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 
+
 class BaseModel:
     """
     Base class that provides:
@@ -8,10 +9,11 @@ class BaseModel:
       - Timestamps (created_at, updated_at)
       - Methods to update attributes and timestamps
     """
+
     def __init__(self):
-        self.id = str(uuid.uuid4())       # Génère un UUID unique
-        self.created_at = datetime.now()  # Date de création
-        self.updated_at = datetime.now()  # Date de dernière mise à jour
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
 
     def save(self):
         """Update the 'updated_at' timestamp when the object is modified."""

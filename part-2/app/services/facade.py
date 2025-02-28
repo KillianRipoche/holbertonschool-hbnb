@@ -58,7 +58,7 @@ class HBnBFacade:
     def create_user(self, user_data):
         existing = self.get_user_by_email(user_data["email"])
         if existing:
-            raise ValueError("Cet email est déjà utilisé.")
+            raise ValueError("This email is already in use.")
 
         user_obj = User(
             first_name=user_data["first_name"],

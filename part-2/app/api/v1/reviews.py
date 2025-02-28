@@ -11,6 +11,7 @@ review_model = api.model('Review', {
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
+
 @api.route('/')
 class ReviewList(Resource):
     @api.expect(review_model)
@@ -20,7 +21,7 @@ class ReviewList(Resource):
         """Register a new review"""
         try:
             data = request.json
-            review_obj = facade.create_review(data)  # objet Review
+            review_obj = facade.create_review(data)
             return {
                 "id": review_obj.id,
                 "text": review_obj.text,
@@ -34,7 +35,7 @@ class ReviewList(Resource):
     @api.response(200, 'List of reviews retrieved successfully')
     def get(self):
         """Retrieve a list of all reviews"""
-        reviews = facade.get_all_reviews()  # liste d'objets
+        reviews = facade.get_all_reviews()
         return [
             {
                 "id": r.id,
@@ -46,13 +47,14 @@ class ReviewList(Resource):
             for r in reviews
         ], 200
 
+
 @api.route('/<review_id>')
 class ReviewResource(Resource):
     @api.response(200, 'Review details retrieved successfully')
     @api.response(404, 'Review not found')
     def get(self, review_id):
         """Get review details by ID"""
-        review_obj = facade.get_review(review_id)  # objet ou None
+        review_obj = facade.get_review(review_id)
         if review_obj:
             return {
                 "id": review_obj.id,
@@ -71,7 +73,7 @@ class ReviewResource(Resource):
         """Update a review's information"""
         try:
             data = request.json
-            review_obj = facade.update_review(review_id, data)  # objet ou None
+            review_obj = facade.update_review(review_id, data)
             if review_obj:
                 return {
                     "id": review_obj.id,
@@ -94,15 +96,16 @@ class ReviewResource(Resource):
             return {'message': 'Review deleted successfully'}, 200
         return {'message': 'Review not found'}, 404
 
+
 @api.route('/places/<place_id>/reviews')
 class PlaceReviewList(Resource):
     @api.response(200, 'List of reviews for the place retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get all reviews for a specific place"""
-        # Liste d'objets Review
+
         reviews = facade.get_reviews_by_place(place_id)
-        # Convertir en dict
+
         return [
             {
                 "id": r.id,

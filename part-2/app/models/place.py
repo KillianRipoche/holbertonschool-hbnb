@@ -39,7 +39,7 @@ class Place(BaseModel):
             raise ValueError(
                 "Invalid 'longitude': must be between -180 and 180.")
 
-        from .user import User  # Import différé
+        from .user import User
         if not isinstance(owner, User):
             raise TypeError("Expected 'owner' to be an instance of User.")
 
