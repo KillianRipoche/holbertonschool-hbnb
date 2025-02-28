@@ -4,7 +4,6 @@ from flask_restx import Api
 from app.api.v1.amenities import api as amenities_api
 from app.services import facade
 
-# filepath: /home/albat93/holbertonschool-hbnb/part-2/app/api/v1/test_amenities.py
 
 class TestAmenitiesAPI(unittest.TestCase):
     def setUp(self):
@@ -14,7 +13,8 @@ class TestAmenitiesAPI(unittest.TestCase):
         self.client = self.app.test_client()
 
     def test_create_amenity(self):
-        response = self.client.post('/api/v1/amenities/', json={'name': 'Pool'})
+        response = self.client.post(
+            '/api/v1/amenities/', json={'name': 'Pool'})
         self.assertEqual(response.status_code, 201)
         self.assertIn('id', response.json)
         self.assertEqual(response.json['name'], 'Pool')
@@ -34,9 +34,12 @@ class TestAmenitiesAPI(unittest.TestCase):
 
     def test_update_amenity(self):
         amenity = facade.create_amenity({'name': 'Garden'})
-        response = self.client.put(f'/api/v1/amenities/{amenity.id}', json={'name': 'Big Garden'})
+        response = self.client.put(
+            f'/api/v1/amenities/{amenity.id}', json={'name': 'Big Garden'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json['name'], 'Big Garden')
 
+
 if __name__ == '__main__':
     unittest.main()
+
