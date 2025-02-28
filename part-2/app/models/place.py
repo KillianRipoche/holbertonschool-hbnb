@@ -1,5 +1,6 @@
 from .BaseModel import BaseModel
 
+
 class Place(BaseModel):
     """
     Place class.
@@ -25,7 +26,8 @@ class Place(BaseModel):
         super().__init__()
 
         if not title or len(title) > 100:
-            raise ValueError("Invalid 'title': must be non-empty and ≤ 100 characters.")
+            raise ValueError(
+                "Invalid 'title': must be non-empty and ≤ 100 characters.")
 
         if price < 0:
             raise ValueError("Invalid 'price': must be a positive number.")
@@ -34,7 +36,8 @@ class Place(BaseModel):
             raise ValueError("Invalid 'latitude': must be between -90 and 90.")
 
         if not (-180 <= longitude <= 180):
-            raise ValueError("Invalid 'longitude': must be between -180 and 180.")
+            raise ValueError(
+                "Invalid 'longitude': must be between -180 and 180.")
 
         from .user import User  # Import différé
         if not isinstance(owner, User):
