@@ -1,8 +1,6 @@
 import re
+from flask_bcrypt import generate_password_hash, check_password_hash
 from .BaseModel import BaseModel
-from flask_bcrypt import Bcrypt
-
-bcrypt = Bcrypt()
 
 
 class User(BaseModel):
@@ -13,6 +11,7 @@ class User(BaseModel):
       - first_name, last_name: Required, max 50 characters
       - email: Required, must be unique, must follow email format
       - is_admin: Boolean (default: False)
+      - password: Hashed password (non exposé dans les GET)
       - places: List of owned Places
       - reviews: List of written Reviews
 
@@ -61,29 +60,30 @@ class User(BaseModel):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
+        self.password = None  # Ce champ stockera le mot de passe haché
 
         # Relations
         self.places = []   # Lieux possédés par l'utilisateur
         self.reviews = []  # Avis rédigés
 
+    def hash_password(self, password):
+        """Hache le mot de passe avant de le stocker."""
+        self.password = generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Vérifie le mot de passe."""
+        return check_password_hash(self.password, password)
+
     def add_place(self, place):
-        """Adds a Place to the user's list of owned places."""
+        """Ajoute un lieu à la liste des lieux possédés par l'utilisateur."""
         from .place import Place
         if not isinstance(place, Place):
             raise TypeError("Expected 'place' to be an instance of Place.")
         self.places.append(place)
 
     def add_review(self, review):
-        """Adds a Review to the user's list of written reviews."""
+        """Ajoute un avis à la liste des avis rédigés par l'utilisateur."""
         from .review import Review
         if not isinstance(review, Review):
             raise TypeError("Expected 'review' to be an instance of Review.")
         self.reviews.append(review)
-
-    def hash_password(self, password):
-        """Hashes the password before storing it."""
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def verify_password(self, password):
-        """Verifies if the provided password matches the hashed password."""
-        return bcrypt.check_password_hash(self.password, password)

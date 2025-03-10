@@ -42,7 +42,7 @@ class HBnBFacade:
             "latitude": place_obj.latitude,
             "longitude": place_obj.longitude,
             "owner_id": place_obj.owner.id,
-            "amenities": [a.id for a in place_obj.amenities.id] if hasattr(place_obj, "amenities") else []
+            "amenities": [a.id for a in place_obj.amenities] if hasattr(place_obj, "amenities") else []
         }
 
     def _review_to_dict(self, review_obj):
@@ -57,16 +57,24 @@ class HBnBFacade:
         }
 
     def create_user(self, user_data):
+        # Vérifie l'unicité de l'email
         existing = self.get_user_by_email(user_data["email"])
         if existing:
             raise ValueError("This email is already in use.")
 
+        # Création de l'utilisateur avec les champs de base
         user_obj = User(
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],
             email=user_data["email"],
             password=user_data["password"]
         )
+        # Vérification de la présence d'un mot de passe
+        if "password" not in user_data or not user_data["password"]:
+            raise ValueError("Password is required.")
+        # Hachage du mot de passe avant de stocker l'utilisateur
+        user_obj.hash_password(user_data["password"])
+
         self.user_repo.add(user_obj)
         return user_obj
 
@@ -85,8 +93,7 @@ class HBnBFacade:
     def create_amenity(self, amenity_data):
         name = amenity_data.get("name", "")
         if not name or len(name) > 50:
-            raise ValueError(
-                "Invalid 'name': must be non-empty and ≤ 50 characters.")
+            raise ValueError("Invalid 'name': must be non-empty and ≤ 50 characters.")
         amenity_obj = Amenity(name=name)
         self.amenity_repo.add(amenity_obj)
         return amenity_obj
@@ -162,8 +169,8 @@ class HBnBFacade:
             new_owner = self.user_repo.get(data["owner_id"])
             if not new_owner:
                 raise ValueError("Owner not found.")
-        place.owner = new_owner
-        data.pop("owner_id")
+            place.owner = new_owner
+            data.pop("owner_id")
 
         if "amenities" in data:
             new_amenities = []

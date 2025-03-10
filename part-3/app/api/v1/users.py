@@ -4,21 +4,12 @@ from werkzeug.security import generate_password_hash
 
 api = Namespace('users', description='User operations')
 
-# Define the user model for input validation and documentation
+# Définition du modèle utilisateur pour la validation et la documentation, avec le champ password ajouté
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user'),
-    'password': fields.String(required=True, description='Password of the user (min 8 chars, secure format)')
+    'email': fields.String(required=True, description='Email of the user')
 })
-# Model for output (sans mot de passe)
-user_response_model = api.model('UserResponse', {
-    'id': fields.String(description='User ID'),
-    'first_name': fields.String(description='First name'),
-    'last_name': fields.String(description='Last name'),
-    'email': fields.String(description='Email')
-})
-
 
 @api.route('/')
 class UserList(Resource):
@@ -30,23 +21,18 @@ class UserList(Resource):
         """Register a new user"""
         user_data = api.payload
 
-        # Simulate email uniqueness check (to be replaced by real validation with persistence)
+        # Vérification de l'unicité de l'email (à remplacer par une validation réelle avec persistance)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
-        try:
-            new_user = facade.create_user(user_data)
-        except ValueError as e:
-            return {'error': str(e)}, 400
-
+        new_user = facade.create_user(user_data)
         return {
             'id': new_user.id,
             'first_name': new_user.first_name,
             'last_name': new_user.last_name,
             'email': new_user.email,
         }, 201
-
 
 @api.route('/<user_id>')
 class UserResource(Resource):

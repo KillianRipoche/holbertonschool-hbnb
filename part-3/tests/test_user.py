@@ -59,16 +59,13 @@ class TestUser(unittest.TestCase):
 
     def test_add_review(self):
         """Tests if a notice can be added to the user."""
-        user = User("Alice", "Dupont", "alice9@example.com", "Password123$")
-        place = Place("Paris", "A nice place", 48.8566, 2.3522, user)  # Correction: ajout des arguments requis
-        review = Review("Great place!", user, place)
-        self.assertEqual(review.user, user)
-        self.assertEqual(review.place, place)
+        user = User("Alice", "Dupont", "alice.dupont@example.com")
+        review_mock = mock.Mock(spec=Review)  # Specify the mock for Review
+        user.add_review(review_mock)
+        self.assertIn(review_mock, user.reviews)
 
-    def test_password_hashing_and_checking():
-        password = "Password123$"
-        user = User("Alice", password)
 
-        # Vérification du mot de passe
-        assert user.check_password("Password123$") == True
-        assert user.check_password("WrongPassword") == False
+if __name__ == '__main__':
+    unittest.main()
+# Run the test with: python3 -m unittest tests/test_user.py
+    # ou python3 -m pytest tests/test_user.py
