@@ -18,3 +18,4 @@ python-apt==2.7.7+ubuntu4
 PyYAML==6.0.1
 requests==2.31.0
 Werkzeug==3.1.3
+flask-bcrypt
