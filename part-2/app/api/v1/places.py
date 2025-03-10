@@ -45,7 +45,7 @@ class PlaceList(Resource):
                 "latitude": place_obj.latitude,
                 "longitude": place_obj.longitude,
                 "owner_id": place_obj.owner.id,
-                "amenities": [a.id for a in place_obj.amenities]
+                "amenities": [a.name for a in place_obj.amenities]
             }, 201
         except ValueError as e:
             return {"message": str(e)}, 400
@@ -108,7 +108,7 @@ class PlaceResource(Resource):
         """ Update a place's information """
         place_data = api.payload
         try:
-            updated_place = facade.update_place(place_id, place_data)  # objet ou None
+            updated_place = facade.update_place(place_id, place_data)
             if not updated_place:
                 return {"message": "Place not found"}, 404
             return {

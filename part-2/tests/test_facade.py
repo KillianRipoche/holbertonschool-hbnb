@@ -242,11 +242,22 @@ class TestHBnBFacade(unittest.TestCase):
         places = self.facade.get_all_places()
         self.assertTrue(len(places) >= 2)
 
-    def test_update_place(self):
-        """Test mise à jour d'un Place"""
+    def test_update_place_change_owner_and_amenities(self):
+        # Créer un second user pour tester le changement de propriétaire
+        second_user = self.facade.create_user({
+            "first_name": "Bob",
+            "last_name": "Marley",
+            "email": "bob@example.com"
+        })
+
+        # Créer quelques amenities
+        wifi = self.facade.create_amenity({"name": "WiFi"})
+        pool = self.facade.create_amenity({"name": "Pool"})
+
+        # Créer un place avec self.user comme owner
         place_data = {
-            "title": "Old Title",
-            "description": "Old desc",
+            "title": "Initial Title",
+            "description": "Initial desc",
             "price": 100.0,
             "latitude": 48.8566,
             "longitude": 2.3522,
@@ -254,12 +265,22 @@ class TestHBnBFacade(unittest.TestCase):
             "amenities": []
         }
         place = self.facade.create_place(place_data)
-        updated = self.facade.update_place(place.id, {
-            "title": "New Title",
-            "price": 120.0
-        })
-        self.assertEqual(updated.title, "New Title")
-        self.assertEqual(updated.price, 120.0)
+
+        # Construire le nouveau data
+        update_data = {
+            "title": "Updated Title",
+            "price": 120.0,
+            "owner_id": second_user.id,          # on change le propriétaire
+            "amenities": [wifi.id, pool.id]      # on ajoute WiFi et Pool
+        }
+
+        updated_place = self.facade.update_place(place.id, update_data)
+        self.assertIsNotNone(updated_place)
+        self.assertEqual(updated_place.title, "Updated Title")
+        self.assertEqual(updated_place.price, 120.0)
+        self.assertEqual(updated_place.owner.id, second_user.id)
+        self.assertIn(wifi, updated_place.amenities)
+        self.assertIn(pool, updated_place.amenities)
 
     # =========================
     # 4) TESTS POUR LES REVIEWS

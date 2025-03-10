@@ -41,7 +41,7 @@ class HBnBFacade:
             "latitude": place_obj.latitude,
             "longitude": place_obj.longitude,
             "owner_id": place_obj.owner.id,
-            "amenities": [a.id for a in place_obj.amenities] if hasattr(place_obj, "amenities") else []
+            "amenities": [a.id for a in place_obj.amenities.id] if hasattr(place_obj, "amenities") else []
         }
 
     def _review_to_dict(self, review_obj):
@@ -123,6 +123,16 @@ class HBnBFacade:
             longitude=place_data["longitude"],
             owner=owner
         )
+        place_obj.amenities = [] if not hasattr(place_obj, "amenities") else place_obj.amenities
+
+        if "amenities" in place_data:
+            amenities = []
+            for amenity_id in place_data["amenities"]:
+                amenity_obj = self.amenity_repo.get(amenity_id)
+                if amenity_obj:
+                    amenities.append(amenity_obj)
+            place_obj.amenities = amenities
+
         self.place_repo.add(place_obj)
         return place_obj
 
@@ -145,6 +155,22 @@ class HBnBFacade:
             raise ValueError("Latitude must be between -90 and 90.")
         if "longitude" in data and not (-180 <= data["longitude"] <= 180):
             raise ValueError("Longitude must be between -180 and 180.")
+
+        if "owner_id" in data:
+            new_owner = self.user_repo.get(data["owner_id"])
+            if not new_owner:
+                raise ValueError("Owner not found.")
+        place.owner = new_owner
+        data.pop("owner_id")
+
+        if "amenities" in data:
+            new_amenities = []
+            for amenity_id in data["amenities"]:
+                amenity_obj = self.amenity_repo.get(amenity_id)
+                if amenity_obj:
+                    new_amenities.append(amenity_obj)
+            place.amenities = new_amenities
+            data.pop("amenities")
 
         place.update(data)
         self.place_repo.add(place)
