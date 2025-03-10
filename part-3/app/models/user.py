@@ -2,7 +2,6 @@ import re
 from flask_bcrypt import generate_password_hash, check_password_hash
 from .BaseModel import BaseModel
 
-
 class User(BaseModel):
     """
     User class.
@@ -22,7 +21,7 @@ class User(BaseModel):
 
     existing_emails = set()
 
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
+    def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
 
         # Validate first_name
@@ -40,22 +39,6 @@ class User(BaseModel):
             raise ValueError("This email is already in use.")
         User.existing_emails.add(email)
 
-        # Validate password
-        if not password or len(password) < 8:
-            raise ValueError("Password must be at least 8 characters long.")
-        if not re.search(r'[A-Z]', password):
-            raise ValueError(
-                "Password must contain at least one uppercase letter.")
-        if not re.search(r'[a-z]', password):
-            raise ValueError(
-                "Password must contain at least one lowercase letter.")
-        if not re.search(r'[0-9]', password):
-            raise ValueError("Password must contain at least one digit.")
-        if not re.search(r'[\W_]', password):
-            raise ValueError(
-                "Password must contain at least one special character.")
-
-        self.hash_password(password)
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
@@ -69,6 +52,7 @@ class User(BaseModel):
     def hash_password(self, password):
         """Hache le mot de passe avant de le stocker."""
         self.password = generate_password_hash(password).decode('utf-8')
+        print(f"HASHED PASSWORD: {self.password}")
 
     def verify_password(self, password):
         """Vérifie le mot de passe."""
@@ -87,3 +71,15 @@ class User(BaseModel):
         if not isinstance(review, Review):
             raise TypeError("Expected 'review' to be an instance of Review.")
         self.reviews.append(review)
+
+    def to_dict(self):
+        """Renvoie une représentation dictionnaire de l'utilisateur, sans le mot de passe."""
+        return {
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "is_admin": self.is_admin,
+            "places": [place.id for place in self.places],
+            "reviews": [review.id for review in self.reviews]
+        }

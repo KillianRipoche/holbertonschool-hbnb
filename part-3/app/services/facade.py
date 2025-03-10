@@ -19,8 +19,7 @@ class HBnBFacade:
             "id": user_obj.id,
             "first_name": user_obj.first_name,
             "last_name": user_obj.last_name,
-            "email": user_obj.email,
-            "password": user_obj.password  # Ensure password is included in the user dictionary
+            "email": user_obj.email
         }
 
     def _amenity_to_dict(self, amenity_obj):
@@ -66,8 +65,7 @@ class HBnBFacade:
         user_obj = User(
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],
-            email=user_data["email"],
-            password=user_data["password"]
+            email=user_data["email"]
         )
         # Vérification de la présence d'un mot de passe
         if "password" not in user_data or not user_data["password"]:

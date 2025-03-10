@@ -1,61 +1,61 @@
 import unittest
+from unittest import mock
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
-import pytest
-import bcrypt
 
 
 class TestUser(unittest.TestCase):
 
     def setUp(self):
-        # Réinitialise les emails utilisés avant chaque test
-        User.existing_emails = set()
+        """Resets existing emails before each test."""
+        User.existing_emails.clear()
 
     def test_valid_user_creation(self):
         """Tests the creation of a valid user."""
-        user = User("Alice", "Dupont", "alice.dupont@example.com", "Password123$")
+        user = User("Alice", "Dupont", "alice.dupont@example.com")
         self.assertEqual(user.first_name, "Alice")
         self.assertEqual(user.last_name, "Dupont")
         self.assertEqual(user.email, "alice.dupont@example.com")
+        self.assertFalse(user.is_admin)
 
     def test_invalid_first_name_empty(self):
         """Tests if an empty first name triggers an error."""
         with self.assertRaises(ValueError):
-            User("", "Dupont", "alice2@example.com", "Password123$")
+            User("", "Dupont", "alice.dupont@example.com")
 
     def test_invalid_first_name_too_long(self):
         """Test if a first name that is too long triggers an error."""
         with self.assertRaises(ValueError):
-            User("A" * 51, "Dupont", "alice3@example.com", "Password123$")
+            User("A" * 51, "Dupont", "alice.dupont@example.com")
 
     def test_invalid_last_name_empty(self):
         """Tests if an empty last name triggers an error."""
         with self.assertRaises(ValueError):
-            User("Alice", "", "alice4@example.com", "Password123$")
+            User("Alice", "", "alice.dupont@example.com")
 
     def test_invalid_last_name_too_long(self):
         """Tests if a last name that is too long triggers an error."""
         with self.assertRaises(ValueError):
-            User("Alice", "D" * 51, "alice5@example.com", "Password123$")
+            User("Alice", "D" * 51, "alice.dupont@example.com")
 
     def test_invalid_email_format(self):
         """Tests if a malformed email triggers an error."""
         with self.assertRaises(ValueError):
-            User("Alice", "Dupont", "alice6.example.com", "Password123$")
+            User("Alice", "Dupont", "alice.dupont.com")
 
     def test_duplicate_email(self):
         """Tests if email duplication is prohibited."""
-        User("Alice", "Dupont", "alice7@example.com", "Password123$")
+        User("Alice", "Dupont", "alice.dupont@example.com")
         with self.assertRaises(ValueError):
-            User("Bob", "Martin", "alice7@example.com", "Password456$")
+            User("Bob", "Martin", "alice.dupont@example.com")
 
     def test_add_place(self):
         """Test if a location can be added to the user."""
-        user = User("Alice", "Dupont", "alice8@example.com", "Password123$")
-        place = Place("Paris", "A nice place", 48.8566, 2.3522, user)  # Correction: ajout des arguments requis
-        self.assertEqual(place.owner, user)
-        self.assertEqual(place.name, "Paris")
+        user = User("Alice", "Dupont", "alice.dupont@example.com")
+        place_mock = mock.Mock(spec=Place)  # Specify the mock for Place
+        user.add_place(place_mock)
+        self.assertIn(place_mock, user.places)
 
     def test_add_review(self):
         """Tests if a notice can be added to the user."""
@@ -64,8 +64,21 @@ class TestUser(unittest.TestCase):
         user.add_review(review_mock)
         self.assertIn(review_mock, user.reviews)
 
+class TestUserPasswordHashing(unittest.TestCase):
+    def test_hash_password(self):
+        user = User("Alice", "Wonderland", "alice@example.com")
+        user.hash_password("monSuperMotDePasse123")
+
+        # Vérifie que le mot de passe n'est pas en clair
+        self.assertNotEqual(user.password, "monSuperMotDePasse123")
+
+        # Vérifie que le mot de passe haché commence bien par "$2b$"
+        self.assertTrue(user.password.startswith("$2b$"))
+
+        # Vérifie que le mot de passe peut être validé
+        self.assertTrue(user.verify_password("monSuperMotDePasse123"))
+        self.assertFalse(user.verify_password("mauvaisMotDePasse"))
+
 
 if __name__ == '__main__':
     unittest.main()
-# Run the test with: python3 -m unittest tests/test_user.py
-    # ou python3 -m pytest tests/test_user.py
