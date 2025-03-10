@@ -19,7 +19,8 @@ class HBnBFacade:
             "id": user_obj.id,
             "first_name": user_obj.first_name,
             "last_name": user_obj.last_name,
-            "email": user_obj.email
+            "email": user_obj.email,
+            "password": user_obj.password  # Ensure password is included in the user dictionary
         }
 
     def _amenity_to_dict(self, amenity_obj):
@@ -63,7 +64,8 @@ class HBnBFacade:
         user_obj = User(
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],
-            email=user_data["email"]
+            email=user_data["email"],
+            password=user_data["password"]
         )
         self.user_repo.add(user_obj)
         return user_obj

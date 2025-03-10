@@ -1,5 +1,8 @@
 import re
 from .BaseModel import BaseModel
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 
 class User(BaseModel):
@@ -20,7 +23,7 @@ class User(BaseModel):
 
     existing_emails = set()
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
 
         # Validate first_name
@@ -38,6 +41,22 @@ class User(BaseModel):
             raise ValueError("This email is already in use.")
         User.existing_emails.add(email)
 
+        # Validate password
+        if not password or len(password) < 8:
+            raise ValueError("Password must be at least 8 characters long.")
+        if not re.search(r'[A-Z]', password):
+            raise ValueError(
+                "Password must contain at least one uppercase letter.")
+        if not re.search(r'[a-z]', password):
+            raise ValueError(
+                "Password must contain at least one lowercase letter.")
+        if not re.search(r'[0-9]', password):
+            raise ValueError("Password must contain at least one digit.")
+        if not re.search(r'[\W_]', password):
+            raise ValueError(
+                "Password must contain at least one special character.")
+
+        self.hash_password(password)
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
@@ -60,3 +79,11 @@ class User(BaseModel):
         if not isinstance(review, Review):
             raise TypeError("Expected 'review' to be an instance of Review.")
         self.reviews.append(review)
+
+    def hash_password(self, password):
+        """Hashes the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)
