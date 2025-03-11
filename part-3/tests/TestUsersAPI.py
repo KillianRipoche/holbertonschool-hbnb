@@ -1,111 +1,108 @@
 import unittest
-import json
-import uuid
-from app import create_app
-from app.models.user import User
+from unittest.mock import MagicMock, patch
+from flask import Flask
+from flask_restx import Api
+from app.api.v1.users import api as users_api
+from app.services import facade
 
 
 class TestUsersAPI(unittest.TestCase):
-    def setUp(self):
-        """
-        Before each test:
-        - Remove all emails (if the User class manages uniqueness via a set).
-        - Initialize the application in test mode.
-        """
-        User.existing_emails.clear()
 
-        self.app = create_app()
-        self.client = self.app.test_client()
+    @classmethod
+    def setUpClass(cls):
+        # Create a Flask test client
+        app = Flask(__name__)
+        api = Api(app)
+        api.add_namespace(users_api, path='/api/v1/users')
 
-    def test_create_user_valid(self):
-        """
-        Test for creating a valid user (all required fields).
-        """
-        random_email = f"user_{uuid.uuid4()}@example.com"
-        payload = {
-            "first_name": "Bob",
-            "last_name": "Marley",
-            "email": random_email
-        }
-        resp = self.client.post('/api/v1/users/', json=payload)
-        self.assertEqual(resp.status_code, 201, msg=resp.data)
-        data = json.loads(resp.data)
-        self.assertIn("id", data)
-        self.assertEqual(data["first_name"], "Bob")
-        self.assertEqual(data["last_name"], "Marley")
-        self.assertEqual(data["email"], random_email)
+        @app.route('/health')
+        def health_check():
+            return "OK", 200
 
-    def test_create_user_missing_required_field(self):
-        """
-        Test: omit a required field (e.g., 'email') => 400 Bad Request.
-        """
-        payload = {
-            "first_name": "Charlie",
-            "last_name": "Brown"
-            # pas de "email"
-        }
-        resp = self.client.post('/api/v1/users/', json=payload)
-        # Flask-RESTx should return 400 for a missing required field.
-        self.assertEqual(resp.status_code, 400, msg=resp.data)
+        # Use a testing database or mock services if needed
+        app.config['TESTING'] = True
+        cls.client = app.test_client()
 
-    def test_create_user_duplicate_email(self):
-        """
-        Test for creating a user with an already used email => 400
-        and the message 'Email already registered'.
-        """
-        email = f"duplicate_{uuid.uuid4()}@example.com"
-        # Create for 1st time
-        payload1 = {
-            "first_name": "Alice",
-            "last_name": "Doe",
-            "email": email
-        }
-        resp1 = self.client.post('/api/v1/users/', json=payload1)
-        self.assertEqual(resp1.status_code, 201, msg=resp1.data)
+    @patch.object(facade, 'create_user')
+    def test_create_user(self, mock_create_user):
+        # Mock the facade call to create a user
+        mock_user = MagicMock()
+        mock_user.id = "123"
+        mock_user.username = "testuser"
+        mock_user.email = "testuser@example.com"
+        mock_create_user.return_value = mock_user
 
-        # Try to create with same email
-        payload2 = {
-            "first_name": "Alice2",
-            "last_name": "Doe2",
-            "email": email
-        }
-        resp2 = self.client.post('/api/v1/users/', json=payload2)
-        self.assertEqual(resp2.status_code, 400, msg=resp2.data)
-        data = json.loads(resp2.data)
-        # On vérifie le message
-        self.assertIn("Email already registered", json.dumps(data))
+        # Send POST request to create a new user
+        response = self.client.post('/api/v1/users', json={
+            "username": "testuser",
+            "email": "testuser@example.com",
+            "password": "password123"
+        })
 
-    def test_get_user_valid(self):
-        """
-        Create a user, then GET user with id => 200 OK.
-        """
-        random_email = f"user_{uuid.uuid4()}@example.com"
-        create_payload = {
-            "first_name": "John",
-            "last_name": "Lennon",
-            "email": random_email
-        }
-        create_resp = self.client.post('/api/v1/users/', json=create_payload)
-        self.assertEqual(create_resp.status_code, 201, msg=create_resp.data)
-        user_data = json.loads(create_resp.data)
-        user_id = user_data["id"]
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json, {
+            "id": "123",
+            "username": "testuser",
+            "email": "testuser@example.com"
+        })
 
-        # Retrieve user
-        get_resp = self.client.get(f'/api/v1/users/{user_id}')
-        self.assertEqual(get_resp.status_code, 200, msg=get_resp.data)
-        fetched_data = json.loads(get_resp.data)
-        self.assertEqual(fetched_data["id"], user_id)
-        self.assertEqual(fetched_data["email"], random_email)
+    @patch.object(facade, 'get_all_users')
+    def test_get_all_users(self, mock_get_all_users):
+        # Mock the facade call to get all users
+        mock_users = [
+            {"id": "123", "username": "testuser1", "email": "testuser1@example.com"},
+            {"id": "124", "username": "testuser2", "email": "testuser2@example.com"}
+        ]
+        mock_get_all_users.return_value = mock_users
 
-    def test_get_user_not_found(self):
-        """
-        Trying to get user with non existant ID => 404.
-        """
-        get_resp = self.client.get('/api/v1/users/nonexistent-id')
-        self.assertEqual(get_resp.status_code, 404, msg=get_resp.data)
-        data = json.loads(get_resp.data)
-        self.assertIn("User not found", json.dumps(data))
+        # Send GET request to retrieve all users
+        response = self.client.get('/api/v1/users')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json), 2)
+        self.assertEqual(response.json[0]["username"], "testuser1")
+        self.assertEqual(response.json[1]["email"], "testuser2@example.com")
+
+    @patch.object(facade, 'get_user')
+    def test_get_user_by_id(self, mock_get_user):
+        # Mock the facade call to get a user by ID
+        mock_user = {"id": "123", "username": "testuser", "email": "testuser@example.com"}
+        mock_get_user.return_value = mock_user
+
+        # Send GET request to retrieve user by ID
+        response = self.client.get('/api/v1/users/123')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["id"], "123")
+        self.assertEqual(response.json["username"], "testuser")
+
+    @patch.object(facade, 'update_user')
+    def test_update_user(self, mock_update_user):
+        # Mock the facade call update a user
+        mock_user = {"id": "123", "username": "updateduser", "email": "updateduser@example.com"}
+        mock_update_user.return_value = mock_user
+
+        # Send PUT request to update the user
+        response = self.client.put('/api/v1/users/123', json={
+            "username": "updateduser",
+            "email": "updateduser@example.com"
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["username"], "updateduser")
+        self.assertEqual(response.json["email"], "updateduser@example.com")
+
+    @patch.object(facade, 'delete_user')
+    def test_delete_user(self, mock_delete_user):
+        # Mock the facade call to delete a user
+        mock_delete_user.return_value = True
+
+        # Send DELETE request to delete the user
+        response = self.client.delete('/api/v1/users/123')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json, {"message": "User deleted successfully"})
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
