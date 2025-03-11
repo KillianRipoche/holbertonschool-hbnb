@@ -4,7 +4,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
-
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -35,13 +34,13 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
-        """ Register a new place """
+        """Register a new place."""
         current_user = get_jwt_identity()
         place_data = api.payload
+        # Assigner l'utilisateur courant comme propriétaire, indépendamment de ce qui est envoyé
         place_data['owner_id'] = current_user["id"]
         try:
             place_obj = facade.create_place(place_data)
-
             return {
                 "id": place_obj.id,
                 "title": place_obj.title,
@@ -57,9 +56,8 @@ class PlaceList(Resource):
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
-        """ Retrieve all places """
+        """Retrieve all places."""
         places = facade.get_all_places()
-
         return [
             {
                 "id": p.id,
@@ -79,7 +77,7 @@ class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """ Retrieve a place's details by ID, including owner and amenities """
+        """Retrieve a place's details by ID, including owner and amenities."""
         try:
             place_obj = facade.get_place(place_id)
             return {
@@ -108,16 +106,26 @@ class PlaceResource(Resource):
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
-    @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
+    @api.response(404, 'Place not found')
     @jwt_required()
     def put(self, place_id):
-        """ Update a place's information """
+        """Update a place's information.
+
+        Les propriétaires peuvent modifier leur place, mais les administrateurs
+        peuvent modifier n'importe quelle place sans restriction de propriété.
+        """
         current_user = get_jwt_identity()
         place_data = api.payload
         place = facade.get_place(place_id)
-        if place.owner_id != current_user["id"]:
-            return{"message": "Unauthorized action"}, 403
+        if not place:
+            return {"message": "Place not found"}, 404
+
+        # Vérifier si l'utilisateur est admin ou s'il est propriétaire
+        is_admin = current_user.get('is_admin', False)
+        if not is_admin and str(place.owner_id) != str(current_user["id"]):
+            return {"message": "Unauthorized action"}, 403
+
         try:
             updated_place = facade.update_place(place_id, place_data)
             if not updated_place:
@@ -134,5 +142,5 @@ class PlaceResource(Resource):
             }, 200
         except ValueError as e:
             return {"message": str(e)}, 400
-        except Exception:
-            return {"message": "Place not found"}, 404
+        except Exception as e:
+            return {"message": "An error occurred: " + str(e)}, 500
