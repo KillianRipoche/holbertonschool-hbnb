@@ -1,9 +1,10 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('users', description='User operations')
 
-# Définition du modèle utilisateur pour la validation et la documentation, avec le champ password ajouté
+# Definition of the user model, including password for validation and documentation
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
@@ -21,12 +22,12 @@ class UserList(Resource):
         """Register a new user"""
         user_data = api.payload
 
-        # Vérification de l'unicité de l'email (à remplacer par une validation réelle avec persistance)
+        # Check if the email is already registered
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
-        # La méthode create_user doit prendre en compte le hachage du password (via la méthode hash_password)
+        # Call create_user to hash the password (via facade service)
         new_user = facade.create_user(user_data)
         return {
             'id': new_user.id,
@@ -34,6 +35,26 @@ class UserList(Resource):
             'last_name': new_user.last_name,
             'email': new_user.email
         }, 201
+
+@api.route('/all')
+class AllUsersList(Resource):
+    @api.response(200, 'List of all users retrieved successfully')
+    @api.response(404, 'No users found')
+    def get(self):
+        """Retrieve all users"""
+        users = facade.get_all_users()
+        if not users:
+            return {'message': 'No users found'}, 404
+
+        return [
+            {
+                'id': user.id,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email
+            }
+            for user in users
+        ], 200
 
 @api.route('/<user_id>')
 class UserResource(Resource):
@@ -50,3 +71,50 @@ class UserResource(Resource):
             'last_name': user.last_name,
             'email': user.email
         }, 200
+
+    @api.expect(user_model)
+    @api.response(200, 'User details updated successfully')
+    @api.response(404, 'User not found')
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
+    @jwt_required()
+    def put(self, user_id):
+        """Update user details"""
+        # Get the current user's identity from the JWT
+        current_user = get_jwt_identity()
+
+        # Ensure the current user is trying to update their own data
+        if current_user['id'] != user_id:
+            return {'message': 'Unauthorized action'}, 403  # User cannot update someone else's data
+
+        user_data = api.payload
+        try:
+            updated_user = facade.update_user(user_id, user_data)
+            if not updated_user:
+                return {'error': 'User not found'}, 404
+            return {
+                'id': updated_user.id,
+                'first_name': updated_user.first_name,
+                'last_name': updated_user.last_name,
+                'email': updated_user.email
+            }, 200
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+    @api.response(200, 'User deleted successfully')
+    @api.response(404, 'User not found')
+    @api.response(403, 'Unauthorized action')
+    @jwt_required()
+    def delete(self, user_id):
+        """Delete user account"""
+        # Get the current user's identity from the JWT
+        current_user = get_jwt_identity()
+
+        # Ensure the current user is trying to delete their own account
+        if current_user['id'] != user_id:
+            return {'message': 'Unauthorized action'}, 403  # User cannot delete someone else's account
+
+        deleted_user = facade.delete_user(user_id)
+        if not deleted_user:
+            return {'error': 'User not found'}, 404
+        return {'message': 'User deleted successfully'}, 200
