@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import request
+from functools import wraps
 from app import facade
 
 api = Namespace('admin', description='Admin operations')
