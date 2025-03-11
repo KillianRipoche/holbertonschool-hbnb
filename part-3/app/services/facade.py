@@ -104,8 +104,8 @@ class HBnBFacade:
 
     def update_amenity(self, amenity_id, data):
         amenity = self.amenity_repo.get(amenity_id)
-        if not amenity:
-            return None
+        if not amenity or len(amenity) > 50:
+            raise ValueError("Invalid 'amenity': must be non-empty and ≤ 50 characters.")
         amenity.update(data)
         self.amenity_repo.add(amenity)
         return amenity
