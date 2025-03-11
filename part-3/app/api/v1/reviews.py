@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
 from app.services import facade
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('reviews', description='Review operations')
 
@@ -17,8 +18,13 @@ class ReviewList(Resource):
     @api.expect(review_model)
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def post(self):
         """Register a new review"""
+        current_user = get_jwt_identity()
+        data = request.json
+        data['user_id'] = current_user["id"]
+        
         try:
             data = request.json
             review_obj = facade.create_review(data)
@@ -69,8 +75,15 @@ class ReviewResource(Resource):
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def put(self, review_id):
         """Update a review's information"""
+        current_user = get_jwt_identity()
+        data = request.json
+        review_obj = facade.get_review(review_id)
+        if review_obj.user_id != current_user["id"]:
+            return {'message': 'Unauthorized action'}, 403
+
         try:
             data = request.json
             review_obj = facade.update_review(review_id, data)
@@ -89,8 +102,14 @@ class ReviewResource(Resource):
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
+    @jwt_required()
     def delete(self, review_id):
         """Delete a review"""
+        current_user = get_jwt_identity()
+        review_obj = facade.get_review(review_id)
+        if review_obj.user_id != current_user["id"]:
+            return {'message': 'Unauthorized action'}, 403
+
         review_obj = facade.delete_review(review_id)
         if review_obj:
             return {'message': 'Review deleted successfully'}, 200
