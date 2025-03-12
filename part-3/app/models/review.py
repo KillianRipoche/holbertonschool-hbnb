@@ -1,7 +1,12 @@
-from .BaseModel import BaseModel
+from app import db
+from app.models.BaseModel import BaseModel
 
 
 class Review(BaseModel):
+    __tablename__ = 'reviews'
+
+    text = db.Column(db.String(500), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
     """
     Review class.
     Attributes:

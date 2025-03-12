@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
-from config import config
+from config import DevelopmentConfig
 
 api = Namespace('users', description='User operations')
 
@@ -23,15 +23,11 @@ class UserList(Resource):
     def post(self):
         """
         Self-registration: Create a new user.
-        If "admin_secret" matches config['default'].ADMIN_SECRET, the user is created as an admin.
+        If "admin_secret" matches DevelopmentConfig.ADMIN_SECRET, the user is created as an admin.
         """
         user_data = api.payload
-        existing_user = facade.get_user_by_email(user_data['email'])
-        if existing_user:
-            return {'error': 'Email already registered'}, 400
-
         admin_secret = user_data.pop('admin_secret', None)
-        if admin_secret and admin_secret == config['default'].ADMIN_SECRET:
+        if admin_secret and admin_secret == DevelopmentConfig.ADMIN_SECRET:
             user_data['is_admin'] = True
         else:
             user_data['is_admin'] = False
@@ -47,6 +43,19 @@ class UserList(Resource):
             }, 201
         except Exception as e:
             return {'error': str(e)}, 400
+
+    @api.response(200, 'List of users retrieved successfully')
+    @jwt_required()
+    def get(self):
+        """
+        Retrieve the list of all users.
+        """
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
+
+        users = facade.get_all_users()
+        return users, 200
 
 
 @api.route('/<user_id>')

@@ -1,7 +1,17 @@
-from .BaseModel import BaseModel
+from app import db
+from app.models.BaseModel import BaseModel
 
 
 class Place(BaseModel):
+    __tablename__ = 'places'
+
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
     """
     Place class.
     Attributes:
