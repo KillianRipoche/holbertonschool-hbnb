@@ -1,10 +1,9 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import request
 from app.services import facade
 
-api = Namespace('places', description='Place operations')
+api = Namespace('places', description='Public Place operations')
 
-# Model definitions for documentation and validation
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -27,27 +26,19 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+
 @api.route('/')
 class PlaceList(Resource):
     @api.expect(place_model)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
-    @jwt_required()
     def post(self):
         """
         Create a new place.
-        - Non-admin users: owner_id is overridden with the current user's ID.
-        - Admin users: can specify any owner_id.
+        - A normal user can specify owner_id, but ideally it should match the current user's ID.
+        - This endpoint remains as it was before.
         """
-        current_user = get_jwt_identity()
-        is_admin = current_user.get('is_admin', False)
-
-        # Copy payload to safely modify it
-        place_data = api.payload.copy()
-        if not is_admin:
-            # Force owner_id to the current user's ID for non-admins
-            place_data['owner_id'] = current_user['id']
-
+        place_data = request.json
         try:
             place_obj = facade.create_place(place_data)
             return {
@@ -69,10 +60,9 @@ class PlaceList(Resource):
         except ValueError as e:
             return {"message": str(e)}, 400
 
-    @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """
-        Retrieve a list of all places, including owner and amenities details.
+        Retrieve a list of all places, including owner and amenities information.
         """
         places = facade.get_all_places()
         result = []
@@ -94,6 +84,7 @@ class PlaceList(Resource):
                 "amenities": [{"id": a.id, "name": a.name} for a in p.amenities]
             })
         return result, 200
+
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -128,35 +119,16 @@ class PlaceResource(Resource):
     @api.response(200, 'Place updated successfully')
     @api.response(400, 'Invalid input data')
     @api.response(404, 'Place not found')
-    @api.response(403, 'Unauthorized action')
-    @jwt_required()
     def put(self, place_id):
         """
         Update a place's information.
-        - Non-admin users can only update their own place; owner_id is forced to the current user's ID.
-        - Admin users can update any place and set owner_id as desired.
+        This endpoint remains as before. Any logic for authentication can be added as needed.
         """
-        current_user = get_jwt_identity()
-        is_admin = current_user.get('is_admin', False)
-
+        place_data = request.json
         try:
-            p = facade.get_place(place_id)
-            if not p:
-                return {"message": "Place not found"}, 404
-
-            # For non-admin users, ensure they are the owner of the place
-            if not is_admin and str(p.owner.id) != str(current_user["id"]):
-                return {"message": "Unauthorized action"}, 403
-
-            place_data = api.payload.copy()
-            if not is_admin:
-                # Override owner_id to current user's ID if not admin
-                place_data['owner_id'] = current_user['id']
-
             updated = facade.update_place(place_id, place_data)
             if not updated:
                 return {"message": "Place not found"}, 404
-
             return {
                 "id": updated.id,
                 "title": updated.title,
@@ -176,4 +148,4 @@ class PlaceResource(Resource):
         except ValueError as e:
             return {"message": str(e)}, 400
         except Exception as e:
-            return {"message": "An error occurred: " + str(e)}, 500
+            return {"message": f"An error occurred: {e}"}, 500

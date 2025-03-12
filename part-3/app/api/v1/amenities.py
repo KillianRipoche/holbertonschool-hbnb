@@ -8,22 +8,20 @@ amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity')
 })
 
-
 @api.route('/')
 class AmenityList(Resource):
     @api.expect(amenity_model, validate=True)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
-    @api.response(403, 'Admin privileges required')
     @jwt_required()
     def post(self):
         """
-        Create a new amenity (ADMIN ONLY).
+        Create a new amenity.
+        Any authenticated user can do this.
+        (If you want it fully public, remove @jwt_required().)
         """
         current_user = get_jwt_identity()
-        if not current_user.get('is_admin'):
-            return {'error': 'Admin privileges required'}, 403
-
+        # We do not check is_admin here, so normal users can create amenities.
         amenity_data = api.payload
         try:
             new_amenity = facade.create_amenity(amenity_data)
@@ -38,6 +36,7 @@ class AmenityList(Resource):
     def get(self):
         """
         Retrieve all amenities.
+        This endpoint is open to everyone.
         """
         amenities = facade.get_all_amenities()
         return [
@@ -48,7 +47,6 @@ class AmenityList(Resource):
             for a in amenities
         ], 200
 
-
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
     @api.response(200, 'Amenity details retrieved successfully')
@@ -56,6 +54,7 @@ class AmenityResource(Resource):
     def get(self, amenity_id):
         """
         Get details of an amenity by its ID.
+        Open to everyone.
         """
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
@@ -69,16 +68,15 @@ class AmenityResource(Resource):
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
-    @api.response(403, 'Admin privileges required')
     @jwt_required()
     def put(self, amenity_id):
         """
-        Update an amenity's information (ADMIN ONLY).
+        Update an amenity's information.
+        Any authenticated user can do this.
+        (Remove @jwt_required() if you want it fully open.)
         """
         current_user = get_jwt_identity()
-        if not current_user.get('is_admin'):
-            return {'error': 'Admin privileges required'}, 403
-
+        # No is_admin check => normal users can update amenities as well.
         amenity_data = api.payload
         try:
             updated_amenity = facade.update_amenity(amenity_id, amenity_data)
