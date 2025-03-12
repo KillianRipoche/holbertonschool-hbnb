@@ -2,7 +2,7 @@ from flask_restx import Namespace, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import request
 from functools import wraps
-from app import facade
+from app.services import facade
 
 api = Namespace('admin', description='Admin operations')
 
@@ -22,17 +22,16 @@ class AdminUserResource(Resource):
     @admin_required
     def put(self, user_id):
         data = request.json
-        email = data.get('email')
-        password = data.get('password')
-
-        if email:
-            existing_user = facade.get_user_by_email(email)
-            # Comparaison en chaînes pour éviter les erreurs de type
+        # Vérification de l'email si fourni
+        if "email" in data:
+            existing_user = facade.get_user_by_email(data["email"])
             if existing_user and str(existing_user.id) != str(user_id):
                 return {'error': 'Email is already in use'}, 400
 
         try:
-            updated_user = facade.update_user(user_id=user_id, email=email, password=password)
+            updated_user = facade.update_user(user_id, data)
+            if not updated_user:
+                return {'error': 'User not found'}, 404
             return {
                 'message': 'User updated successfully',
                 'user': updated_user.to_dict()
@@ -45,19 +44,17 @@ class AdminUserCreate(Resource):
     @jwt_required()
     @admin_required
     def post(self):
-        user_data = request.json
-        email = user_data.get('email')
-        password = user_data.get('password')
-        is_admin = user_data.get('is_admin', False)
+        data = request.json
+        required_fields = ['first_name', 'last_name', 'email', 'password']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return {'error': f'Missing required field: {field}'}, 400
 
-        if not email or not password:
-            return {'error': 'Missing required fields: email and password are required.'}, 400
-
-        if facade.get_user_by_email(email):
+        if facade.get_user_by_email(data["email"]):
             return {'error': 'Email already registered'}, 400
 
         try:
-            user = facade.create_user(email=email, password=password, is_admin=is_admin)
+            user = facade.create_user(data)
             return {
                 'message': 'User created',
                 'user': user.to_dict()
@@ -71,15 +68,17 @@ class AdminAmenityCreate(Resource):
     @admin_required
     def post(self):
         data = request.json
-        name = data.get('name')
-        if not name:
+        if "name" not in data or not data["name"]:
             return {'error': 'Missing amenity name'}, 400
 
         try:
-            amenity = facade.create_amenity(name=name)
+            amenity = facade.create_amenity(data)
             return {
                 'message': 'Amenity created',
-                'amenity': amenity.to_dict()
+                'amenity': {
+                    'id': amenity.id,
+                    'name': amenity.name
+                }
             }, 201
         except Exception as e:
             return {'error': str(e)}, 500
@@ -90,15 +89,19 @@ class AdminAmenityModify(Resource):
     @admin_required
     def put(self, amenity_id):
         data = request.json
-        name = data.get('name')
-        if not name:
+        if "name" not in data or not data["name"]:
             return {'error': 'Missing amenity name'}, 400
 
         try:
-            updated_amenity = facade.update_amenity(amenity_id=amenity_id, name=name)
+            updated_amenity = facade.update_amenity(amenity_id, data)
+            if not updated_amenity:
+                return {'error': 'Amenity not found'}, 404
             return {
                 'message': 'Amenity updated',
-                'amenity': updated_amenity.to_dict()
+                'amenity': {
+                    'id': updated_amenity.id,
+                    'name': updated_amenity.name
+                }
             }, 200
         except Exception as e:
             return {'error': str(e)}, 500
@@ -106,26 +109,14 @@ class AdminAmenityModify(Resource):
 @api.route('/places/<place_id>')
 class AdminPlaceModify(Resource):
     @jwt_required()
+    @admin_required
     def put(self, place_id):
-        current_user = get_jwt_identity()
-        is_admin = current_user.get('is_admin', False)
-        user_id = current_user.get('id')
-
-        place = facade.get_place(place_id)
-        if not place:
-            return {'error': 'Place not found'}, 404
-
-        # Pour les utilisateurs non administrateurs, vérifier l'ownership
-        if not is_admin and str(place.owner_id) != str(user_id):
-            return {'error': 'Unauthorized action'}, 403
-
         data = request.json
-        name = data.get('name')
-        description = data.get('description')
-        price = data.get('price')
-
+        # Pour simplifier, on attend un dictionnaire avec les champs à mettre à jour
         try:
-            updated_place = facade.update_place(place_id=place_id, name=name, description=description, price=price)
+            updated_place = facade.update_place(place_id, data)
+            if not updated_place:
+                return {'error': 'Place not found'}, 404
             return {
                 'message': 'Place updated',
                 'place': updated_place.to_dict()
