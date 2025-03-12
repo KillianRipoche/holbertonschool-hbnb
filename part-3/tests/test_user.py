@@ -64,8 +64,21 @@ class TestUser(unittest.TestCase):
         user.add_review(review_mock)
         self.assertIn(review_mock, user.reviews)
 
+class TestUserPasswordHashing(unittest.TestCase):
+    def test_hash_password(self):
+        user = User("Alice", "Wonderland", "alice@example.com")
+        user.hash_password("monSuperMotDePasse123")
+
+        # Vérifie que le mot de passe n'est pas en clair
+        self.assertNotEqual(user.password, "monSuperMotDePasse123")
+
+        # Vérifie que le mot de passe haché commence bien par "$2b$"
+        self.assertTrue(user.password.startswith("$2b$"))
+
+        # Vérifie que le mot de passe peut être validé
+        self.assertTrue(user.verify_password("monSuperMotDePasse123"))
+        self.assertFalse(user.verify_password("mauvaisMotDePasse"))
+
 
 if __name__ == '__main__':
     unittest.main()
-# Run the test with: python3 -m unittest tests/test_user.py
-    # ou python3 -m pytest tests/test_user.py
