@@ -1,12 +1,11 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
-import os
 from app.services import facade
 from config import config
 
 api = Namespace('users', description='User operations')
 
-# Define the user model for documentation and validation
+# Model for user registration
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='User first name'),
     'last_name': fields.String(required=True, description='User last name'),
@@ -24,16 +23,13 @@ class UserList(Resource):
     def post(self):
         """
         Self-registration: Create a new user.
-        If "admin_secret" matches config['default'].ADMIN_SECRET, the user is created with admin privileges.
+        If "admin_secret" matches config['default'].ADMIN_SECRET, the user is created as an admin.
         """
         user_data = api.payload
-
-        # Check if the email is already registered
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
-        # Determine if the account should be admin based on the provided admin_secret
         admin_secret = user_data.pop('admin_secret', None)
         if admin_secret and admin_secret == config['default'].ADMIN_SECRET:
             user_data['is_admin'] = True
@@ -73,7 +69,7 @@ class UserResource(Resource):
         }, 200
 
     @api.expect(user_model)
-    @api.response(200, 'User details updated successfully')
+    @api.response(200, 'User updated successfully')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Unauthorized action')
@@ -81,16 +77,14 @@ class UserResource(Resource):
     def put(self, user_id):
         """
         Update a user's own details.
-        The authenticated user must match the user_id (admin changes must be done via admin endpoints).
+        The authenticated user must match the user_id.
         """
         current_user = get_jwt_identity()
         if current_user['id'] != user_id:
             return {'message': 'Unauthorized action'}, 403
 
         user_data = api.payload
-        # Remove admin_secret from payload (not used here)
         user_data.pop('admin_secret', None)
-
         try:
             updated_user = facade.update_user(user_id, user_data)
             if not updated_user:
