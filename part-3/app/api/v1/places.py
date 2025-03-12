@@ -1,20 +1,8 @@
 from flask_restx import Namespace, Resource, fields
-from app.services import facade
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.services import facade
 
 api = Namespace('places', description='Place operations')
-
-amenity_model = api.model('PlaceAmenity', {
-    'id': fields.String(description='Amenity ID'),
-    'name': fields.String(description='Name of the amenity')
-})
-
-user_model = api.model('PlaceUser', {
-    'id': fields.String(description='User ID'),
-    'first_name': fields.String(description='First name of the owner'),
-    'last_name': fields.String(description='Last name of the owner'),
-    'email': fields.String(description='Email of the owner')
-})
 
 place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
@@ -22,10 +10,8 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(required=True, description='ID of the owner'),
-    'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
+    'amenities': fields.List(fields.String, required=False, description="List of amenity IDs")
 })
-
 
 @api.route('/')
 class PlaceList(Resource):
@@ -34,10 +20,13 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
-        """Register a new place."""
+        """
+        Create a new place.
+        The authenticated user is automatically set as the owner.
+        """
         current_user = get_jwt_identity()
         place_data = api.payload
-        # Assigner l'utilisateur courant comme propriétaire, indépendamment de ce qui est envoyé
+        # Force owner_id to the current user
         place_data['owner_id'] = current_user["id"]
         try:
             place_obj = facade.create_place(place_data)
@@ -56,7 +45,9 @@ class PlaceList(Resource):
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
-        """Retrieve all places."""
+        """
+        Retrieve all places.
+        """
         places = facade.get_all_places()
         return [
             {
@@ -71,13 +62,14 @@ class PlaceList(Resource):
             for p in places
         ], 200
 
-
 @api.route('/<place_id>')
 class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Retrieve a place's details by ID, including owner and amenities."""
+        """
+        Retrieve details of a place by its ID.
+        """
         try:
             place_obj = facade.get_place(place_id)
             return {
@@ -87,12 +79,7 @@ class PlaceResource(Resource):
                 "price": place_obj.price,
                 "latitude": place_obj.latitude,
                 "longitude": place_obj.longitude,
-                "owner": {
-                    "id": place_obj.owner.id,
-                    "first_name": place_obj.owner.first_name,
-                    "last_name": place_obj.owner.last_name,
-                    "email": place_obj.owner.email
-                },
+                "owner_id": place_obj.owner.id,
                 "amenities": [
                     {
                         "id": a.id,
@@ -110,10 +97,9 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     @jwt_required()
     def put(self, place_id):
-        """Update a place's information.
-
-        Les propriétaires peuvent modifier leur place, mais les administrateurs
-        peuvent modifier n'importe quelle place sans restriction de propriété.
+        """
+        Update a place's information.
+        The user must be either the owner or an admin.
         """
         current_user = get_jwt_identity()
         place_data = api.payload
@@ -121,9 +107,8 @@ class PlaceResource(Resource):
         if not place:
             return {"message": "Place not found"}, 404
 
-        # Vérifier si l'utilisateur est admin ou s'il est propriétaire
         is_admin = current_user.get('is_admin', False)
-        if not is_admin and str(place.owner_id) != str(current_user["id"]):
+        if not is_admin and str(place.owner.id) != str(current_user["id"]):
             return {"message": "Unauthorized action"}, 403
 
         try:
