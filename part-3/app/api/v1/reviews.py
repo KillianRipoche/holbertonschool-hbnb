@@ -75,17 +75,21 @@ class ReviewResource(Resource):
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
     @jwt_required()
     def put(self, review_id):
-        """Update a review's information"""
+        """Update a review's information (ADMIN can bypass ownership)"""
         current_user = get_jwt_identity()
         data = request.json
         review_obj = facade.get_review(review_id)
-        if review_obj.user_id != current_user["id"]:
+        if not review_obj:
+            return {'message': 'Review not found'}, 404
+
+        # Autoriser si l'utilisateur est admin ou si c'est l'auteur du review
+        if not (current_user.get('is_admin') or review_obj.user.id == current_user["id"]):
             return {'message': 'Unauthorized action'}, 403
 
         try:
-            data = request.json
             review_obj = facade.update_review(review_id, data)
             if review_obj:
                 return {
@@ -102,12 +106,17 @@ class ReviewResource(Resource):
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
+    @api.response(403, 'Unauthorized action')
     @jwt_required()
     def delete(self, review_id):
-        """Delete a review"""
+        """Delete a review (ADMIN can bypass ownership)"""
         current_user = get_jwt_identity()
         review_obj = facade.get_review(review_id)
-        if review_obj.user_id != current_user["id"]:
+        if not review_obj:
+            return {'message': 'Review not found'}, 404
+
+        # Autoriser la suppression si admin ou si c'est l'auteur
+        if not (current_user.get('is_admin') or review_obj.user.id == current_user["id"]):
             return {'message': 'Unauthorized action'}, 403
 
         review_obj = facade.delete_review(review_id)
