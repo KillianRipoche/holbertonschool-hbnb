@@ -1,18 +1,20 @@
-import os
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import os
 from app.services import facade
+from config import config
 
 api = Namespace('users', description='User operations')
 
-# Ajout d'un champ optionnel "admin_secret" dans le modèle
+# Define the user model for documentation and validation
 user_model = api.model('User', {
-    'first_name': fields.String(required=True, description='First name of the user'),
-    'last_name': fields.String(required=True, description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user'),
+    'first_name': fields.String(required=True, description='User first name'),
+    'last_name': fields.String(required=True, description='User last name'),
+    'email': fields.String(required=True, description='User email'),
     'password': fields.String(required=True, description='User password'),
     'admin_secret': fields.String(required=False, description='Secret to create an admin account')
 })
+
 
 @api.route('/')
 class UserList(Resource):
@@ -22,25 +24,23 @@ class UserList(Resource):
     def post(self):
         """
         Self-registration: Create a new user.
-        Si le champ "admin_secret" est fourni et correct, l'utilisateur sera créé avec les privilèges administrateur.
+        If "admin_secret" matches config['default'].ADMIN_SECRET, the user is created with admin privileges.
         """
         user_data = api.payload
 
-        # Vérifier si l'email est déjà enregistré
+        # Check if the email is already registered
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
-        # Détermine le niveau de privilège
-        admin_secret = user_data.pop("admin_secret", None)
-        # On compare avec la valeur stockée dans l'environnement (à définir, par exemple, dans un fichier .env)
-        if admin_secret and admin_secret == os.getenv("ADMIN_SECRET"):
-            user_data["is_admin"] = True
+        # Determine if the account should be admin based on the provided admin_secret
+        admin_secret = user_data.pop('admin_secret', None)
+        if admin_secret and admin_secret == config['default'].ADMIN_SECRET:
+            user_data['is_admin'] = True
         else:
-            user_data["is_admin"] = False
+            user_data['is_admin'] = False
 
         try:
-            # Création de l'utilisateur via la façade
             new_user = facade.create_user(user_data)
             return {
                 'id': new_user.id,
@@ -52,28 +52,6 @@ class UserList(Resource):
         except Exception as e:
             return {'error': str(e)}, 400
 
-@api.route('/all')
-class AllUsersList(Resource):
-    @api.response(200, 'List of all users retrieved successfully')
-    @api.response(404, 'No users found')
-    def get(self):
-        """
-        Retrieve all users.
-        """
-        users = facade.get_all_users()
-        if not users:
-            return {'message': 'No users found'}, 404
-
-        return [
-            {
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'is_admin': user.is_admin
-            }
-            for user in users
-        ], 200
 
 @api.route('/<user_id>')
 class UserResource(Resource):
@@ -81,7 +59,7 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     def get(self, user_id):
         """
-        Get user details by ID.
+        Retrieve user details by ID.
         """
         user = facade.get_user(user_id)
         if not user:
@@ -102,15 +80,17 @@ class UserResource(Resource):
     @jwt_required()
     def put(self, user_id):
         """
-        Update user's own details.
-        Seul l'utilisateur lui-même peut modifier ses informations.
+        Update a user's own details.
+        The authenticated user must match the user_id (admin changes must be done via admin endpoints).
         """
         current_user = get_jwt_identity()
-
         if current_user['id'] != user_id:
             return {'message': 'Unauthorized action'}, 403
 
         user_data = api.payload
+        # Remove admin_secret from payload (not used here)
+        user_data.pop('admin_secret', None)
+
         try:
             updated_user = facade.update_user(user_id, user_data)
             if not updated_user:
@@ -131,11 +111,12 @@ class UserResource(Resource):
     @jwt_required()
     def delete(self, user_id):
         """
-        Delete user's own account.
+        Delete a user account.
+        A user can delete their own account.
+        (For admin deletion of any user, use the admin endpoint.)
         """
         current_user = get_jwt_identity()
-
-        if not (current_user.get('is_admin') or current_user['id'] == user_id):
+        if current_user['id'] != user_id:
             return {'message': 'Unauthorized action'}, 403
 
         deleted_user = facade.delete_user(user_id)

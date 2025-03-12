@@ -1,14 +1,13 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from app.services import facade
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.services import facade
 
 api = Namespace('reviews', description='Review operations')
 
 review_model = api.model('Review', {
-    'text': fields.String(required=True, description='Text of the review'),
-    'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
-    'user_id': fields.String(required=True, description='ID of the user'),
+    'text': fields.String(required=True, description='Review text'),
+    'rating': fields.Integer(required=True, description='Rating for the place (1-5)'),
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
@@ -20,13 +19,15 @@ class ReviewList(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
-        """Register a new review"""
+        """
+        Create a new review.
+        The authenticated user is automatically set as the author.
+        """
         current_user = get_jwt_identity()
         data = request.json
         data['user_id'] = current_user["id"]
 
         try:
-            data = request.json
             review_obj = facade.create_review(data)
             return {
                 "id": review_obj.id,
@@ -40,7 +41,9 @@ class ReviewList(Resource):
 
     @api.response(200, 'List of reviews retrieved successfully')
     def get(self):
-        """Retrieve a list of all reviews"""
+        """
+        Retrieve a list of all reviews.
+        """
         reviews = facade.get_all_reviews()
         return [
             {
@@ -59,7 +62,9 @@ class ReviewResource(Resource):
     @api.response(200, 'Review details retrieved successfully')
     @api.response(404, 'Review not found')
     def get(self, review_id):
-        """Get review details by ID"""
+        """
+        Retrieve review details by ID.
+        """
         review_obj = facade.get_review(review_id)
         if review_obj:
             return {
@@ -75,20 +80,22 @@ class ReviewResource(Resource):
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
-    @api.response(403, 'Unauthorized action')
     @jwt_required()
     def put(self, review_id):
-        """Update a review's information (ADMIN can bypass ownership)"""
+        """
+        Update a review's information.
+        The author or an admin can update the review.
+        """
         current_user = get_jwt_identity()
-        data = request.json
         review_obj = facade.get_review(review_id)
         if not review_obj:
             return {'message': 'Review not found'}, 404
 
-        # Autoriser si l'utilisateur est admin ou si c'est l'auteur du review
-        if not (current_user.get('is_admin') or review_obj.user.id == current_user["id"]):
+        is_admin = current_user.get('is_admin', False)
+        if not (is_admin or review_obj.user.id == current_user["id"]):
             return {'message': 'Unauthorized action'}, 403
 
+        data = request.json
         try:
             review_obj = facade.update_review(review_id, data)
             if review_obj:
@@ -109,38 +116,20 @@ class ReviewResource(Resource):
     @api.response(403, 'Unauthorized action')
     @jwt_required()
     def delete(self, review_id):
-        """Delete a review (ADMIN can bypass ownership)"""
+        """
+        Delete a review.
+        The author or an admin can delete the review.
+        """
         current_user = get_jwt_identity()
         review_obj = facade.get_review(review_id)
         if not review_obj:
             return {'message': 'Review not found'}, 404
 
-        # Autoriser la suppression si admin ou si c'est l'auteur
-        if not (current_user.get('is_admin') or review_obj.user.id == current_user["id"]):
+        is_admin = current_user.get('is_admin', False)
+        if not (is_admin or review_obj.user.id == current_user["id"]):
             return {'message': 'Unauthorized action'}, 403
 
         review_obj = facade.delete_review(review_id)
         if review_obj:
             return {'message': 'Review deleted successfully'}, 200
         return {'message': 'Review not found'}, 404
-
-
-@api.route('/places/<place_id>/reviews')
-class PlaceReviewList(Resource):
-    @api.response(200, 'List of reviews for the place retrieved successfully')
-    @api.response(404, 'Place not found')
-    def get(self, place_id):
-        """Get all reviews for a specific place"""
-
-        reviews = facade.get_reviews_by_place(place_id)
-
-        return [
-            {
-                "id": r.id,
-                "text": r.text,
-                "rating": r.rating,
-                "user_id": r.user.id,
-                "place_id": r.place.id
-            }
-            for r in reviews
-        ], 200
