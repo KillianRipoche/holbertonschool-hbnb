@@ -4,7 +4,7 @@ from app.services import facade
 
 api = Namespace('users', description='User operations')
 
-# Definition of the user model, including password for validation and documentation
+# Modèle de données pour la documentation et validation
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
@@ -16,32 +16,38 @@ user_model = api.model('User', {
 class UserList(Resource):
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
-    @api.response(400, 'Email already registered')
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Email already registered or invalid input data')
     def post(self):
-        """Register a new user"""
+        """
+        Self-registration: Create a new user (open to public).
+        """
         user_data = api.payload
 
-        # Check if the email is already registered
+        # Vérifier si l'email est déjà enregistré
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
-        # Call create_user to hash the password (via facade service)
-        new_user = facade.create_user(user_data)
-        return {
-            'id': new_user.id,
-            'first_name': new_user.first_name,
-            'last_name': new_user.last_name,
-            'email': new_user.email
-        }, 201
+        try:
+            # Création de l'utilisateur via la façade (le flag is_admin reste à False par défaut)
+            new_user = facade.create_user(user_data)
+            return {
+                'id': new_user.id,
+                'first_name': new_user.first_name,
+                'last_name': new_user.last_name,
+                'email': new_user.email
+            }, 201
+        except Exception as e:
+            return {'error': str(e)}, 400
 
 @api.route('/all')
 class AllUsersList(Resource):
     @api.response(200, 'List of all users retrieved successfully')
     @api.response(404, 'No users found')
     def get(self):
-        """Retrieve all users"""
+        """
+        Retrieve all users.
+        """
         users = facade.get_all_users()
         if not users:
             return {'message': 'No users found'}, 404
@@ -61,7 +67,9 @@ class UserResource(Resource):
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
-        """Get user details by ID"""
+        """
+        Get user details by ID.
+        """
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
@@ -79,13 +87,15 @@ class UserResource(Resource):
     @api.response(403, 'Unauthorized action')
     @jwt_required()
     def put(self, user_id):
-        """Update user details"""
-        # Get the current user's identity from the JWT
+        """
+        Update user's own details.
+        Seul l'utilisateur lui-même peut modifier ses informations.
+        """
         current_user = get_jwt_identity()
 
-        # Ensure the current user is trying to update their own data
+        # Vérifier que l'utilisateur authentifié correspond bien à l'ID du compte à modifier
         if current_user['id'] != user_id:
-            return {'message': 'Unauthorized action'}, 403  # User cannot update someone else's data
+            return {'message': 'Unauthorized action'}, 403
 
         user_data = api.payload
         try:
@@ -106,13 +116,14 @@ class UserResource(Resource):
     @api.response(403, 'Unauthorized action')
     @jwt_required()
     def delete(self, user_id):
-        """Delete user account"""
-        # Get the current user's identity from the JWT
+        """
+        Delete user's own account.
+        L'utilisateur peut supprimer son propre compte.
+        """
         current_user = get_jwt_identity()
 
-        # Ensure the current user is trying to delete their own account
         if current_user['id'] != user_id:
-            return {'message': 'Unauthorized action'}, 403  # User cannot delete someone else's account
+            return {'message': 'Unauthorized action'}, 403
 
         deleted_user = facade.delete_user(user_id)
         if not deleted_user:
