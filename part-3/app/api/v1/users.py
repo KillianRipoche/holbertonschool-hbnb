@@ -1,19 +1,12 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
-<<<<<<< HEAD
 import os
-=======
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
 from app.services import facade
 from config import config
 
 api = Namespace('users', description='User operations')
 
-<<<<<<< HEAD
 # Define the user model for documentation and validation
-=======
-# Definition of the user model, including password for validation and documentation
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='User first name'),
     'last_name': fields.String(required=True, description='User last name'),
@@ -40,7 +33,6 @@ class UserList(Resource):
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
-<<<<<<< HEAD
         # Determine if the account should be admin based on the provided admin_secret
         admin_secret = user_data.pop('admin_secret', None)
         if admin_secret and admin_secret == config['default'].ADMIN_SECRET:
@@ -60,36 +52,6 @@ class UserList(Resource):
         except Exception as e:
             return {'error': str(e)}, 400
 
-=======
-        # Call create_user to hash the password (via facade service)
-        new_user = facade.create_user(user_data)
-        return {
-            'id': new_user.id,
-            'first_name': new_user.first_name,
-            'last_name': new_user.last_name,
-            'email': new_user.email
-        }, 201
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
-
-@api.route('/all')
-class AllUsersList(Resource):
-    @api.response(200, 'List of all users retrieved successfully')
-    @api.response(404, 'No users found')
-    def get(self):
-        """Retrieve all users"""
-        users = facade.get_all_users()
-        if not users:
-            return {'message': 'No users found'}, 404
-
-        return [
-            {
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email
-            }
-            for user in users
-        ], 200
 
 @api.route('/<user_id>')
 class UserResource(Resource):
@@ -117,7 +79,6 @@ class UserResource(Resource):
     @api.response(403, 'Unauthorized action')
     @jwt_required()
     def put(self, user_id):
-<<<<<<< HEAD
         """
         Update a user's own details.
         The authenticated user must match the user_id (admin changes must be done via admin endpoints).
@@ -130,17 +91,6 @@ class UserResource(Resource):
         # Remove admin_secret from payload (not used here)
         user_data.pop('admin_secret', None)
 
-=======
-        """Update user details"""
-        # Get the current user's identity from the JWT
-        current_user = get_jwt_identity()
-
-        # Ensure the current user is trying to update their own data
-        if current_user['id'] != user_id:
-            return {'message': 'Unauthorized action'}, 403  # User cannot update someone else's data
-
-        user_data = api.payload
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
         try:
             updated_user = facade.update_user(user_id, user_data)
             if not updated_user:
@@ -149,12 +99,8 @@ class UserResource(Resource):
                 'id': updated_user.id,
                 'first_name': updated_user.first_name,
                 'last_name': updated_user.last_name,
-<<<<<<< HEAD
                 'email': updated_user.email,
                 'is_admin': updated_user.is_admin
-=======
-                'email': updated_user.email
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
             }, 200
         except Exception as e:
             return {'error': str(e)}, 400
@@ -164,7 +110,6 @@ class UserResource(Resource):
     @api.response(403, 'Unauthorized action')
     @jwt_required()
     def delete(self, user_id):
-<<<<<<< HEAD
         """
         Delete a user account.
         A user can delete their own account.
@@ -173,15 +118,6 @@ class UserResource(Resource):
         current_user = get_jwt_identity()
         if current_user['id'] != user_id:
             return {'message': 'Unauthorized action'}, 403
-=======
-        """Delete user account"""
-        # Get the current user's identity from the JWT
-        current_user = get_jwt_identity()
-
-        # Ensure the current user is trying to delete their own account
-        if current_user['id'] != user_id:
-            return {'message': 'Unauthorized action'}, 403  # User cannot delete someone else's account
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
 
         deleted_user = facade.delete_user(user_id)
         if not deleted_user:

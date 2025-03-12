@@ -2,7 +2,6 @@ from flask_restx import Namespace, Resource, fields
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('reviews', description='Review operations')
 
@@ -20,7 +19,6 @@ class ReviewList(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
-<<<<<<< HEAD
         """
         Create a new review.
         The authenticated user is automatically set as the author.
@@ -29,13 +27,6 @@ class ReviewList(Resource):
         data = request.json
         data['user_id'] = current_user["id"]
 
-=======
-        """Register a new review"""
-        current_user = get_jwt_identity()
-        data = request.json
-        data['user_id'] = current_user["id"]
-        
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
         try:
             review_obj = facade.create_review(data)
             return {
@@ -91,7 +82,6 @@ class ReviewResource(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def put(self, review_id):
-<<<<<<< HEAD
         """
         Update a review's information.
         The author or an admin can update the review.
@@ -106,15 +96,6 @@ class ReviewResource(Resource):
             return {'message': 'Unauthorized action'}, 403
 
         data = request.json
-=======
-        """Update a review's information"""
-        current_user = get_jwt_identity()
-        data = request.json
-        review_obj = facade.get_review(review_id)
-        if review_obj.user_id != current_user["id"]:
-            return {'message': 'Unauthorized action'}, 403
-
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
         try:
             review_obj = facade.update_review(review_id, data)
             if review_obj:
@@ -132,7 +113,6 @@ class ReviewResource(Resource):
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
-<<<<<<< HEAD
     @api.response(403, 'Unauthorized action')
     @jwt_required()
     def delete(self, review_id):
@@ -147,14 +127,6 @@ class ReviewResource(Resource):
 
         is_admin = current_user.get('is_admin', False)
         if not (is_admin or review_obj.user.id == current_user["id"]):
-=======
-    @jwt_required()
-    def delete(self, review_id):
-        """Delete a review"""
-        current_user = get_jwt_identity()
-        review_obj = facade.get_review(review_id)
-        if review_obj.user_id != current_user["id"]:
->>>>>>> d0374826fa7d65b2c619775477fd8b5ed77c5387
             return {'message': 'Unauthorized action'}, 403
 
         review_obj = facade.delete_review(review_id)
