@@ -8,6 +8,7 @@ amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity')
 })
 
+
 @api.route('/')
 class AmenityList(Resource):
     @api.expect(amenity_model, validate=True)
@@ -16,7 +17,9 @@ class AmenityList(Resource):
     @api.response(403, 'Admin privileges required')
     @jwt_required()
     def post(self):
-        """Register a new amenity (ADMIN ONLY)"""
+        """
+        Create a new amenity (ADMIN ONLY).
+        """
         current_user = get_jwt_identity()
         if not current_user.get('is_admin'):
             return {'error': 'Admin privileges required'}, 403
@@ -33,7 +36,9 @@ class AmenityList(Resource):
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
-        """Retrieve the list of all amenities"""
+        """
+        Retrieve all amenities.
+        """
         amenities = facade.get_all_amenities()
         return [
             {
@@ -49,7 +54,9 @@ class AmenityResource(Resource):
     @api.response(200, 'Amenity details retrieved successfully')
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
-        """Get amenity details by ID"""
+        """
+        Get details of an amenity by its ID.
+        """
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {'error': 'Amenity not found'}, 404
@@ -65,7 +72,9 @@ class AmenityResource(Resource):
     @api.response(403, 'Admin privileges required')
     @jwt_required()
     def put(self, amenity_id):
-        """Update an amenity's information (ADMIN ONLY)"""
+        """
+        Update an amenity's information (ADMIN ONLY).
+        """
         current_user = get_jwt_identity()
         if not current_user.get('is_admin'):
             return {'error': 'Admin privileges required'}, 403
