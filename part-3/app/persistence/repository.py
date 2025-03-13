@@ -1,37 +1,80 @@
+from abc import ABC, abstractmethod
+from app import db
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
 import uuid
+from datetime import datetime
 
 
-class InMemoryRepository:
-    """
-    Simple in-memory repository for storing objects.
-    """
+@as_declarative()
+class Base:
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
 
-    def __init__(self):
-        self.storage = {}
 
+class BaseModel(db.Model):
+    __abstract__ = True  # This ensures SQLAlchemy does not create a table for BaseModel
+
+    id = db.Column(db.String(36), primary_key=True,
+                   default=lambda: str(uuid.uuid4()))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Repository(ABC):
+    @abstractmethod
     def add(self, obj):
-        if not obj.id:
-            obj.id = str(uuid.uuid4())
-        self.storage[obj.id] = obj
-        return obj
+        pass
 
+    @abstractmethod
     def get(self, obj_id):
-        return self.storage.get(obj_id)
+        pass
 
+    @abstractmethod
+    def get_all(self):
+        pass
+
+    @abstractmethod
+    def update(self, obj_id, data):
+        pass
+
+    @abstractmethod
     def delete(self, obj_id):
-        return self.storage.pop(obj_id, None)
+        pass
 
-    def update(self, obj_id, new_obj):
-        if obj_id in self.storage:
-            self.storage[obj_id] = new_obj
-            return new_obj
-        return None
-
+    @abstractmethod
     def get_by_attribute(self, attr_name, attr_value):
-        for obj in self.storage.values():
-            if hasattr(obj, attr_name) and getattr(obj, attr_name) == attr_value:
-                return obj
-        return None
+        pass
+
+
+class SQLAlchemyRepository(Repository):
+    def __init__(self, model):
+        self.model = model
+
+    def add(self, instance):
+        from app import db
+        db.session.add(instance)
+        db.session.commit()
+
+    def get(self, id):
+        from app import db
+        return db.session.query(self.model).get(id)
 
     def get_all(self):
-        return list(self.storage.values())
+        from app import db
+        return db.session.query(self.model).all()
+
+    def update(self, instance):
+        from app import db
+        db.session.commit()
+
+    def delete(self, instance):
+        from app import db
+        db.session.delete(instance)
+        db.session.commit()
+
+    def get_by_attribute(self, attr_name, attr_value):
+        from app import db
+        return db.session.query(self.model).filter(getattr(self.model, attr_name) == attr_value).first()
