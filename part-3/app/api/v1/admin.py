@@ -18,13 +18,15 @@ def admin_required(fn):
         return fn(*args, **kwargs)
     return wrapper
 
+
+### -------------------------
+### USERS (CREATE / UPDATE)
+### -------------------------
 @api.route('/users/')
 class AdminUserResource(Resource):
     @admin_required
     def post(self):
-        """
-        Admin can create a new user.
-        """
+        """Admin can create a new user."""
         data = request.json
         try:
             new_user = facade.create_user(data)
@@ -32,13 +34,12 @@ class AdminUserResource(Resource):
         except Exception as e:
             return {'error': str(e)}, 400
 
+
 @api.route('/users/<user_id>')
 class AdminUserUpdateResource(Resource):
     @admin_required
     def put(self, user_id):
-        """
-        Admin can update any user.
-        """
+        """Admin can update any user."""
         data = request.json
         updated_user = facade.update_user(user_id, data)
         if not updated_user:
@@ -46,13 +47,14 @@ class AdminUserUpdateResource(Resource):
         return {'message': 'User updated', 'user': updated_user.to_dict()}, 200
 
 
+### -------------------------
+### PLACES (UPDATE / DELETE)
+### -------------------------
 @api.route('/places/<place_id>')
 class AdminPlaceResource(Resource):
     @admin_required
     def put(self, place_id):
-        """
-        Admin can update any place regardless of ownership.
-        """
+        """Admin can update any place regardless of ownership."""
         data = request.json
         updated_place = facade.update_place(place_id, data)
         if not updated_place:
@@ -63,34 +65,64 @@ class AdminPlaceResource(Resource):
                 'id': updated_place.id,
                 'title': updated_place.title,
                 'owner_id': updated_place.owner.id
-                # Additional fields as needed
             }
         }, 200
+
+    @admin_required
     def delete(self, place_id):
-        """
-        Admin can delete any place regardless of ownership.
-        """
+        """Admin can delete any place regardless of ownership."""
         success = facade.delete_place(place_id)
         if not success:
             return {'error': 'Place not found'}, 404
         return {'message': 'Place deleted by admin'}, 200
+
+
+### -------------------------
+### REVIEWS (DELETE)
+### -------------------------
+@api.route('/reviews/<review_id>')
+class AdminReviewResource(Resource):
+    @admin_required
     def delete(self, review_id):
-        """
-        Admin can delete any review regardless of ownership.
-        """
+        """Admin can delete any review regardless of ownership."""
         success = facade.delete_review(review_id)
         if not success:
             return {'error': 'Review not found'}, 404
         return {'message': 'Review deleted by admin'}, 200
 
 
+### -------------------------
+### AMENITIES (CREATE / UPDATE)
+### -------------------------
 @api.route('/amenities/')
 class AdminAmenityResource(Resource):
     @admin_required
     def post(self):
-        """
-        Admin-only creation of an amenity.
-        """
+        """Admin-only creation of an amenity."""
         data = request.json
         new_amenity = facade.create_amenity(data)
-        return {'message': 'Amenity created', 'amenity': {'id': new_amenity.id, 'name': new_amenity.name}}, 201
+        return {
+            'message': 'Amenity created',
+            'amenity': {
+                'id': new_amenity.id,
+                'name': new_amenity.name
+            }
+        }, 201
+
+
+@api.route('/amenities/<amenity_id>')
+class AdminAmenityUpdateResource(Resource):
+    @admin_required
+    def put(self, amenity_id):
+        """Admin-only update of an amenity."""
+        data = request.json
+        updated_amenity = facade.update_amenity(amenity_id, data)
+        if not updated_amenity:
+            return {'error': 'Amenity not found'}, 404
+        return {
+            'message': 'Amenity updated',
+            'amenity': {
+                'id': updated_amenity.id,
+                'name': updated_amenity.name
+            }
+        }, 200
