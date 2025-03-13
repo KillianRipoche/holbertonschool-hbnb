@@ -18,7 +18,7 @@ class Place(BaseModel):
     longitude = db.Column(db.Float, nullable=False)
 
     # Clé étrangère vers la table users
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    owner_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
 
     # Relation directe : permet de faire place.owner pour accéder à l'objet User
     owner = db.relationship('User', backref='places', lazy=True)
