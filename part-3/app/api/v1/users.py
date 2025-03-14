@@ -89,7 +89,7 @@ class UserResource(Resource):
         The authenticated user must match the user_id.
         """
         current_user = get_jwt_identity()
-        if current_user['id'] != user_id:
+        if current_user['id'] != user_id and not current_user.get('is_admin', False):
             return {'message': 'Unauthorized action'}, 403
 
         user_data = api.payload
@@ -118,7 +118,7 @@ class UserResource(Resource):
         (For admin deletion of any user, use the admin endpoint.)
         """
         current_user = get_jwt_identity()
-        if current_user['id'] != user_id:
+        if current_user['id'] != user_id and not current_user.get('is_admin', False):
             return {'message': 'Unauthorized action'}, 403
 
         try:
