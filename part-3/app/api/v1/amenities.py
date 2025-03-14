@@ -25,6 +25,8 @@ class AmenityList(Resource):
             return {'message': 'User not found'}, 400
 
         amenity_data = api.payload
+        amenity_data["owner_id"] = user.id
+
         try:
             new_amenity = facade.create_amenity(amenity_data)
             return {
