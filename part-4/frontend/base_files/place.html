@@ -1,69 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Place Details</title>
-	<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place Details</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
+<body id="place-page">
+  <header>
+    <img src="./images/logo.png" alt="Logo" class="logo">
+    <nav>
+      <a href="index.html" class="login-button">Home</a>
+    </nav>
+  </header>
 
-<body>
-	<header>
-		<img src="./images/logo.png" class="logo" alt="logo">
-		<nav>
-			<a href="index.html" class="login-button">Home</a>
-		</nav>
-	</header>
+  <main>
+    <section class="place-details">
+      <h2>Cozy Cottage</h2>
+      <div class="place-info">
+        <p>Host: John Doe</p>
+        <p>Price: $120 per night</p>
+        <p>Description: A cozy place in the woods.</p>
+        <p>Amenities: Wi-Fi, Kitchen, Heating</p>
+      </div>
+    </section>
 
-	<main>
-		<section class="place-details">
-			<h2>Cozy Cottage</h2>
-			<div class="place-info">
-				<p><strong>Host:</strong> John Doe</p>
-				<p><strong>Price:</strong> $120 per night</p>
-				<p><strong>Description:</strong> A cozy place in the woods.</p>
-				<p><strong>Amenities:</strong></p>
-				<ul class="amenities">
-				  <li><img src="images/icon_wifi.png" alt="Wi-Fi" title="Wi-Fi"> Wi-Fi</li>
-				  <li><img src="images/icon_bath.png" alt="Bathroom" title="Bathroom"> Bathroom</li>
-				  <li><img src="images/icon_bed.png" alt="Bed" title="Bed"> Double Bed</li>
-				</ul>
-			</div>
-		</section>
+    <section id="reviews">
+      <h3>Reviews</h3>
+      <article class="review-card">
+        <p>"Amazing stay!" - Alice</p>
+        <p>Rating: 5/5</p>
+      </article>
+    </section>
 
-		<section id="reviews">
-			<article class="review-card">
-				<p>"Amazing stay!" - Alice</p>
-				<p>Rating: 5/5</p>
-			</article>
-		</section>
+    <section id="add-review">
+      <a href="add_review.html" class="btn">Add a Review</a>
+    </section>
+  </main>
 
-		<section id="add-review">
-			<h2>Add a Review</h2>
-			<form id="review-form" class="add-review form">
-				<label for="review-text">Review:</label>
-				<textarea id="review-text" name="review-text" required></textarea>
+  <footer>
+    <p>All rights reserved</p>
+  </footer>
 
-				<label for="rating">Rating:</label>
-				<select id="rating" name="rating" required>
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-					<option value="4">4</option>
-					<option value="5">5</option>
-				</select>
-
-				<button type="submit">Submit</button>
-			</form>
-		</section>
-	</main>
-
-	<footer>
-		<p>All rights reserved</p>
-	</footer>
-
-	<script src="scripts.js"></script>
+  <script src="scripts.js"></script>
 </body>
-
 </html>

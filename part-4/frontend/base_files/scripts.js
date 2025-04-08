@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const placesList = document.getElementById('places-list');
   const priceFilter = document.getElementById('price-filter');
 
+  // Liste des lieux avec leur prix
   const places = [
     { name: 'Cozy Cottage', price: 120 },
     { name: 'Urban Loft', price: 200 },
@@ -10,38 +11,30 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Luxury Villa', price: 280 }
   ];
 
-  function renderPlaces(maxPrice = null) {
+  // Fonction pour afficher les lieux en fonction du filtre
+  const displayPlaces = (maxPrice) => {
     placesList.innerHTML = '';
-
-    const filteredPlaces = places.filter(place => {
-      return maxPrice === null || place.price <= maxPrice;
-    });
+    const filteredPlaces = places.filter(place => place.price <= maxPrice);
 
     filteredPlaces.forEach(place => {
-      const card = document.createElement('article');
+      const card = document.createElement('div');
       card.className = 'place-card';
 
       card.innerHTML = `
         <h3>${place.name}</h3>
         <p>$${place.price} per night</p>
-        <a href="place.html" class="details-link">
-          <button class="details-button">View Details</button>
-        </a>
+        <button class="btn" onclick="location.href='place.html'">View Details</button>
       `;
 
       placesList.appendChild(card);
     });
-  }
+  };
 
-  // Initial rendering of all places
-  renderPlaces();
+  priceFilter.addEventListener('change', (e) => {
+    const maxPrice = parseInt(e.target.value, 10);
+    displayPlaces(maxPrice);
+  });
 
-  // Event listener for filter changes
-  if (priceFilter) {
-    priceFilter.addEventListener('change', () => {
-      const selectedValue = priceFilter.value;
-      const max = selectedValue === '300' ? null : parseInt(selectedValue);
-      renderPlaces(max);
-    });
-  }
+  // Affichage initial avec un maxPrice élevé pour afficher toutes les places
+  displayPlaces(300);
 });
