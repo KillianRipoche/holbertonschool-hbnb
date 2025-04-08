@@ -78,7 +78,7 @@
 	display: inline-block;
 	padding: 12px 24px;
 	border: none;
-	border-radius: 50px;  /* Bouton en forme de pillule */
+	border-radius: 50px;  /* Forme pillule */
 	background: linear-gradient(45deg, #FF5A5F, #FF8084);
 	color: #fff;
 	font-weight: bold;
@@ -176,29 +176,8 @@
 	color: #777;
   }
 
-  /* Optionnel : Liste d'aménagements à l'intérieur d'une carte */
-  .place-card .amenities {
-	list-style: none;
-	display: flex;
-	justify-content: center;
-	gap: 0.5rem;
-	margin-bottom: 1rem;
-  }
-
-  .place-card .amenities img {
-	height: 18px;
-	width: 18px;
-	vertical-align: middle;
-  }
-
   /* ========================================================================
-	 9. Bouton "View Details"
-  ======================================================================== */
-  /* Pour le bouton View Details, pensez à utiliser les classes .btn et .details-button.
-	 Exemple dans le HTML : <a href="place.html" class="btn details-button">View Details</a> */
-
-  /* ========================================================================
-	 10. Page Détails d'un lieu (place.html)
+	 9. Page Détails d'un lieu (place.html)
   ======================================================================== */
   .place-details {
 	background-color: #fff;
@@ -223,7 +202,7 @@
   }
 
   /* ========================================================================
-	 11. Section Avis (Reviews) sur place.html
+	 10. Section Avis (Reviews) sur place.html
   ======================================================================== */
   #reviews {
 	max-width: 800px;
@@ -238,7 +217,7 @@
   }
 
   /* ========================================================================
-	 12. Section "Add Review" (add_review.html)
+	 11. Section "Add Review" (add_review.html)
   ======================================================================== */
   .add-review {
 	background-color: #fff;
@@ -258,7 +237,7 @@
   }
 
   /* ========================================================================
-	 13. Formulaires (Login, Add Review)
+	 12. Formulaires (Login, Add Review)
   ======================================================================== */
   form {
 	background-color: #fff;
@@ -294,13 +273,8 @@
 	width: 100%;
   }
 
-  /* Pour le bouton de formulaire, utilisez la classe .btn */
-  form button {
-	margin-top: 1rem;
-  }
-
   /* ========================================================================
-	 14. Mobile Responsiveness
+	 13. Mobile Responsiveness
   ======================================================================== */
   @media (max-width: 768px) {
 	main {
