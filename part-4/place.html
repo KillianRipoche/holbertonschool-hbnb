@@ -11,6 +11,10 @@
     <img src="./images/logo.png" alt="Logo" class="logo" />
     <nav>
       <a href="index.html" class="login-button">Home</a>
+      <a href="login.html" class="login-button" id="login-link">Login</a>
+      <button id="logout-button" class="btn" style="display: none; margin-left: 1rem;">
+        Logout
+      </button>
     </nav>
   </header>
 
@@ -31,24 +35,15 @@
       <p>Loading reviews...</p>
     </section>
 
-    <section id="add-review" style="display: none;">
-      <a href="" id="add-review-link" class="btn">Add a Review</a>
+    <!-- Add Review : visible pour tous -->
+    <section id="add-review">
+      <button id="add-review-button" class="btn">Add a Review</button>
     </section>
   </main>
 
   <footer>
     <p>All rights reserved</p>
   </footer>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const placeId = new URLSearchParams(window.location.search).get("id");
-      if (placeId) {
-        const link = document.getElementById("add-review-link");
-        if (link) link.href = `add_review.html?id=${placeId}`;
-      }
-    });
-  </script>
 
   <script src="scripts.js"></script>
 </body>

@@ -11,6 +11,9 @@
     <img src="./images/logo.png" alt="Logo" class="logo">
     <nav>
       <a href="index.html" class="login-button">Home</a>
+      <button id="logout-button" class="btn" style="display: none; margin-left: 1rem;">
+        Logout
+      </button>
     </nav>
   </header>
 
@@ -23,9 +26,7 @@
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required>
 
-      <!-- Zone pour afficher le message de succès -->
       <div id="login-message" style="color: green; margin-bottom: 1rem;"></div>
-      <!-- Zone pour afficher un message d'erreur -->
       <div id="error-message" style="color: red; margin-bottom: 1rem; display: none;"></div>
 
       <button type="submit" class="btn">Login</button>
