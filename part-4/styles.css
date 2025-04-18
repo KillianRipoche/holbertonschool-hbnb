@@ -5,9 +5,9 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-  }
+}
 
-  body {
+body {
 	background-color: #f7f7f7;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	color: #333;
@@ -15,126 +15,127 @@
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 2. Header
   ======================================================================== */
-  header {
+header {
 	background-color: #fff;
 	padding: 1rem 2rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	border-bottom: 1px solid #e5e5e5;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
 
-  .logo {
+.logo {
 	height: 50px;
-  }
+}
 
-  nav a {
+nav a {
 	color: #FF5A5F;
 	text-decoration: none;
 	margin-left: 1rem;
 	font-weight: bold;
 	transition: color 0.3s ease;
-  }
+}
 
-  nav a:hover {
+nav a:hover {
 	color: #E04750;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 3. Pied de page (Footer)
   ======================================================================== */
-  footer {
+footer {
 	background-color: #fff;
 	padding: 1rem 2rem;
 	text-align: center;
 	font-size: 0.9rem;
 	border-top: 1px solid #e5e5e5;
-	box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+	box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
 	margin-top: auto;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 4. Contenu principal (Main)
   ======================================================================== */
-  main {
+main {
 	padding: 2rem;
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	width: 100%;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 5. Boutons – Style commun (.btn)
   ======================================================================== */
-  .btn {
+.btn {
 	display: inline-block;
 	padding: 12px 24px;
 	border: none;
-	border-radius: 50px;  /* Forme pillule */
+	border-radius: 50px;
+	/* Forme pillule */
 	background: linear-gradient(45deg, #FF5A5F, #FF8084);
 	color: #fff;
 	font-weight: bold;
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  }
+}
 
-  .btn:hover {
+.btn:hover {
 	background: linear-gradient(45deg, #FF8084, #FF5A5F);
 	transform: translateY(-2px);
-	box-shadow: 0 8px 12px rgba(0,0,0,0.15);
-  }
+	box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
 
-  .btn:active {
+.btn:active {
 	transform: translateY(0);
-	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 6. Section Filtre (Index)
   ======================================================================== */
-  #filter {
+#filter {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	margin-bottom: 2rem;
 	text-align: center;
-  }
+}
 
-  #filter h2 {
+#filter h2 {
 	font-size: 1.8rem;
 	margin-bottom: 1rem;
 	color: #2c3e50;
-  }
+}
 
-  .filter-controls {
+.filter-controls {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-  }
+}
 
-  #price-filter {
+#price-filter {
 	padding: 6px 10px;
 	border: 1px solid #e5e5e5;
 	border-radius: 6px;
 	font-size: 1rem;
 	background-color: #fff;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 7. Liste des places – Grille (Index)
   ======================================================================== */
-  #places-list {
+#places-list {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 	gap: 2rem;
@@ -142,44 +143,44 @@
 	width: 100%;
 	max-width: 1200px;
 	margin: 0 auto;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 8. Cartes pour les lieux et avis (place-card, review-card)
   ======================================================================== */
-  .place-card,
-  .review-card {
+.place-card,
+.review-card {
 	background-color: #fff;
 	border: 1px solid #e5e5e5;
 	border-radius: 10px;
 	padding: 20px;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 	text-align: center;
 	transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
+}
 
-  .place-card:hover,
-  .review-card:hover {
+.place-card:hover,
+.review-card:hover {
 	transform: translateY(-4px);
-	box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  }
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
 
-  .place-card h3,
-  .review-card h3 {
+.place-card h3,
+.review-card h3 {
 	font-size: 1.5rem;
 	margin-bottom: 0.5rem;
 	color: #333;
-  }
+}
 
-  .place-card p {
+.place-card p {
 	margin-bottom: 1rem;
 	color: #777;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 9. Page Détails d'un lieu (place.html)
   ======================================================================== */
-  .place-details {
+.place-details {
 	background-color: #fff;
 	border: 1px solid #e5e5e5;
 	border-radius: 10px;
@@ -187,39 +188,39 @@
 	max-width: 800px;
 	width: 100%;
 	margin: 2rem auto;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  }
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
 
-  .place-details h2 {
+.place-details h2 {
 	font-size: 2rem;
 	margin-bottom: 1rem;
 	color: #333;
-  }
+}
 
-  .place-info p {
+.place-info p {
 	margin: 10px 0;
 	color: #555;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 10. Section Avis (Reviews) sur place.html
   ======================================================================== */
-  #reviews {
+#reviews {
 	max-width: 800px;
 	width: 100%;
 	margin: 2rem auto;
-  }
+}
 
-  #reviews h3 {
+#reviews h3 {
 	font-size: 1.8rem;
 	margin-bottom: 1rem;
 	color: #333;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 11. Section "Add Review" (add_review.html)
   ======================================================================== */
-  .add-review {
+.add-review {
 	background-color: #fff;
 	border: 1px solid #e5e5e5;
 	border-radius: 10px;
@@ -227,22 +228,22 @@
 	max-width: 800px;
 	width: 100%;
 	margin: 2rem auto;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  }
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
 
-  .add-review h2 {
+.add-review h2 {
 	font-size: 1.8rem;
 	margin-bottom: 1rem;
 	color: #333;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 12. Formulaires (Login, Add Review)
   ======================================================================== */
-  form {
+form {
 	background-color: #fff;
 	border-radius: 8px;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 	padding: 20px;
 	max-width: 500px;
 	width: 100%;
@@ -250,44 +251,44 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
-  }
+}
 
-  form h2 {
+form h2 {
 	font-size: 1.8rem;
 	margin-bottom: 1rem;
 	color: #333;
-  }
+}
 
-  label {
+label {
 	font-weight: bold;
 	color: #555;
-  }
+}
 
-  input,
-  textarea,
-  select {
+input,
+textarea,
+select {
 	padding: 10px;
 	border: 1px solid #e5e5e5;
 	border-radius: 5px;
 	font-size: 1rem;
 	width: 100%;
-  }
+}
 
-  /* ========================================================================
+/* ========================================================================
 	 13. Mobile Responsiveness
   ======================================================================== */
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
 	main {
-	  padding: 1rem;
+		padding: 1rem;
 	}
 
 	#places-list {
-	  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-	  padding: 1rem;
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		padding: 1rem;
 	}
 
 	form {
-	  width: 90%;
-	  margin: 1rem auto;
+		width: 90%;
+		margin: 1rem auto;
 	}
-  }
+}

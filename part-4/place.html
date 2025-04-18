@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Place Details</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body id="place-page">
   <header>
-    <img src="./images/logo.png" alt="Logo" class="logo">
+    <img src="./images/logo.png" alt="Logo" class="logo" />
     <nav>
       <a href="index.html" class="login-button">Home</a>
     </nav>
@@ -22,26 +22,33 @@
         <p id="place-price">Price: ???</p>
         <p id="place-description">Description: ???</p>
         <p id="place-amenities">Amenities: ???</p>
-        <img id="place-image" src="" alt="Place Image" style="max-width: 100%; margin-top: 1rem;">
+        <img id="place-image" src="" alt="Place Image" style="max-width: 100%; margin-top: 1rem;" />
       </div>
     </section>
 
     <section id="reviews">
       <h3>Reviews</h3>
-      <article class="review-card">
-        <p>"Amazing stay!" - Alice</p>
-        <p>Rating: 5/5</p>
-      </article>
+      <p>Loading reviews...</p>
     </section>
 
-    <section id="add-review">
-      <a href="add_review.html" class="btn">Add a Review</a>
+    <section id="add-review" style="display: none;">
+      <a href="" id="add-review-link" class="btn">Add a Review</a>
     </section>
   </main>
 
   <footer>
     <p>All rights reserved</p>
   </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const placeId = new URLSearchParams(window.location.search).get("id");
+      if (placeId) {
+        const link = document.getElementById("add-review-link");
+        if (link) link.href = `add_review.html?id=${placeId}`;
+      }
+    });
+  </script>
 
   <script src="scripts.js"></script>
 </body>
