@@ -1,0 +1,270 @@
+/* Variables de couleurs */
+:root {
+  --bg-color: #f9f4ef;
+  --text-color: #5d4636;
+  --card-bg: #fff8f0;
+  --border-color: #e0d8cd;
+  --accent: #e08f58;
+  --accent-hov: #c17c49;
+  --nav-link: #ad7c52;
+  --nav-hov: #996b46;
+}
+
+/* 1. Reset de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 2. Body */
+body {
+  background-color: var(--bg-color);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 3. Header */
+header {
+  background-color: var(--card-bg);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.logo {
+  height: 50px;
+}
+nav a {
+  color: var(--nav-link);
+  text-decoration: none;
+  margin-left: 1rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+nav a:hover {
+  color: var(--nav-hov);
+}
+
+/* 4. Footer */
+footer {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  border-top: 1px solid #333333;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+  margin-top: auto;
+}
+
+/* 5. Main */
+main {
+  padding: 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 6. Boutons */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(45deg, var(--accent), #f2b280);
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.btn:hover {
+  background: linear-gradient(45deg, #f2b280, var(--accent));
+  transform: translateY(-2px);
+}
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 7. Filtre */
+#filter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+#filter h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#price-filter {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--card-bg);
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+/* 8. Grille des lieux */
+#places-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 9. Cartes (places & reviews) */
+.place-card,
+.review-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+.place-card:hover,
+.review-card:hover {
+  transform: translateY(-4px);
+}
+.place-card h3,
+.review-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+.place-card p {
+  margin-bottom: 1rem;
+  color: #7a6a5b;
+}
+
+/* 10. Détails d’un lieu */
+.place-details {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+.place-details h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+.place-info p {
+  margin: 10px 0;
+  color: #7a6a5b;
+}
+
+/* 11. Reviews */
+#reviews {
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+}
+#reviews h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+/* 12. Ajouter review */
+.add-review {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+.add-review h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+/* 13. Formulaires */
+form {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+form h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+label {
+  font-weight: bold;
+  color: #7a6a5b;
+}
+input,
+textarea,
+select {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+/* 14. Icons Amenities */
+.amenity {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+.amenity-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+}
+
+/* 15. Responsive */
+@media (max-width: 768px) {
+  main {
+    padding: 1rem;
+  }
+  #places-list {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    padding: 1rem;
+  }
+  form {
+    width: 90%;
+    margin: 1rem auto;
+  }
+}
